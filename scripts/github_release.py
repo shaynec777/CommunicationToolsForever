@@ -68,7 +68,7 @@ else:
         raise SystemExit("Existing origin differs from the intended project; no push performed.")
 git("add", "--", "CommunicationToolsForever", "tests", "scripts", ".gitignore", "README.md", "USER-GUIDE.md", "DESCRIPTION.md", "LICENSE", "CHANGELOG.md", "RELEASE-NOTES.md")
 if subprocess.run(["git", "-C", str(root), "diff", "--cached", "--quiet"], env=env).returncode:
-    git("commit", "-m", "Release CommunicationTools Forever 0.10.1 beta")
+    git("commit", "-m", "Prepare CommunicationTools Forever 0.10.1 beta publication")
 commit = git("rev-parse", "HEAD")
 git("push", "-u", "origin", "HEAD:main")
 version = "0.10.1"
@@ -80,10 +80,21 @@ except urllib.error.HTTPError as error:
     release = call(api + "/releases", {"tag_name": "v" + version, "target_commitish": commit,
         "name": "CommunicationTools Forever " + version + " beta", "draft": False, "prerelease": True,
         "body": (root / "RELEASE-NOTES.md").read_text(encoding="utf-8")})
+else:
+    release = call(api + f'/releases/{release["id"]}', {"body": (root / "RELEASE-NOTES.md").read_text(encoding="utf-8")}, method="PATCH")
+    reference = call(api + "/git/ref/tags/v" + version)
+    if reference["object"]["sha"] != commit:
+        call(api + "/git/refs/tags/v" + version, {"sha": commit, "force": False}, method="PATCH")
 archive = root / "releases" / f"CommunicationToolsForever-{version}.zip"
 digest = "sha256:" + hashlib.sha256(archive.read_bytes()).hexdigest()
 assets = call(api + f'/releases/{release["id"]}/assets')
 asset = next((asset for asset in assets if asset["name"] == archive.name), None)
+if asset is not None and asset.get("digest") != digest:
+    request = urllib.request.Request("https://api.github.com" + api + f'/releases/assets/{asset["id"]}', method="DELETE",
+        headers={"Authorization": "Bearer " + token, "User-Agent": "CommunicationToolsForever-release"})
+    with urllib.request.urlopen(request, timeout=60) as response:
+        assert response.status == 204
+    asset = None
 if asset is None:
     asset = call(release["upload_url"].split("{")[0] + "?name=" + archive.name, archive.read_bytes(), content="application/zip")
 assert asset.get("digest") == digest, "Uploaded ZIP digest differs"

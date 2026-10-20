@@ -23,6 +23,4 @@ Lua 5.1 regression suites cover tool navigation, blacklist behavior, auto-replie
 
 In-game feedback confirmed buff thanks, blacklist filtering, and Ctrl+Shift-click additions. The newer tools and four-template editor require wider in-game validation. Forever beta restrictions can prevent identifying a buff caster or processing a whisper. Permanent/undated buffs are skipped; /say needs a click. Battle.net account chat is not supported.
 
-Intermittent full-client `/reload` crashes were reported; the cause remains unconfirmed. Restart the client if affected and include a crash report with any issue.
-
 Thanks to Fenty Od for testing and ideas, and Proba Croisus for testing.

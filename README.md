@@ -32,7 +32,7 @@ Forever may withhold aura, caster, or whisper data. If information is restricted
 
 Extended Ignore filters local chat display; it does not replace Blizzard's ignore list or hide chat bubbles. Native ignores can prevent incoming whisper events from reaching the addon, so an ignore notification may not be possible. DND does not change Blizzard's native `/dnd` status. Automatic replies have cooldowns and rate limits.
 
-In-game feedback confirmed buff thanks, including paladin buffs after surname fixes, blacklist filtering, and Ctrl+Shift-click additions. The remaining tools, four-message pool, layout, and combat options have automated regression coverage and need broader in-game testing. Intermittent full-client crashes during `/reload` were reported during development; no crash report established their cause or confirmed an addon attribution. If affected, restart the client and include a crash report when reporting the issue.
+In-game feedback confirmed buff thanks, including paladin buffs after surname fixes, blacklist filtering, and Ctrl+Shift-click additions. The remaining tools, four-message pool, layout, and combat options have automated regression coverage and need broader in-game testing.
 
 If something does not work, please report the addon version, tool, steps taken, and any BugSack error. For skipped buff thanks, `/ct diagnosis` displays the recent decisions; `/ct debug on` enables live local diagnostics.
 
