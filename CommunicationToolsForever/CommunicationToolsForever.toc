@@ -1,0 +1,14 @@
+## Interface: 16001
+## Title: CommunicationTools Forever
+## Notes: Buff Thanks, Extended Ignore, Do Not Disturb, and Name Alerts.
+## Author: shaynec777
+## Version: 0.10.1
+## SavedVariables: ForeverCommunicationsDB
+
+Core.lua
+BuffThanks.lua
+ExtendedIgnore.lua
+DoNotDisturb.lua
+NameAlerts.lua
+Settings.lua
+ChatAccess.lua

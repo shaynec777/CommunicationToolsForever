@@ -1,0 +1,5 @@
+Generated with the built-in image_gen tool. Transparent background requested.
+
+Use case: logo-brand. Create a polished vintage radio and microphone emblem for the World of Warcraft addon Communications Forever. An old-fashioned wooden tabletop radio with rounded art deco cabinet, tuning dial and speaker grille, paired with a classic ribbed metal broadcast microphone on a short stand. Warm antique brass and walnut, softly luminous dial, confident clean silhouette, charming hand-painted fantasy game UI illustration, crisp readable at small size. Centered compact horizontal composition, fully isolated with real transparent background and generous clear margins. No lettering, no words, no watermark. This is a main-menu logo asset, not a UI screenshot.
+
+The addon was renamed to CommunicationTools Forever during generation. The artwork has no lettering and is used unchanged with the new name.
