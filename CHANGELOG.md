@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.4 — 2026-10-21
+
+- Fix detached chat layering, tile new windows, make detached backgrounds opaque, and thank Garok Shrike for suggestions. Includes optional thank-you labels from 0.10.3.
+
 ## 0.10.3 — 2026-10-21
 
 - Allow thank-you templates with either label, both labels, or neither. Clarify settings-page guidance. Confirmed working in-game.

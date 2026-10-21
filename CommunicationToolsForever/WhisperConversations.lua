@@ -96,28 +96,42 @@ function FC:SaveWhisperWindowPosition(key, window)
         if key then history[key].position = position else settings.position = position end
     end
 end
+local windowLevel = 100
+local function bringForward(window)
+    windowLevel = windowLevel + 20
+    window:SetFrameLevel(windowLevel)
+end
 local function placeDetached(window, key)
     local saved = history[key] and history[key].position
     local x, y = 40, -40
     if type(saved) == "table" and finite(saved.x) and finite(saved.y) then
         x, y = saved.x, saved.y
     else
-        -- Reserve a different cascade slot from every currently open chat.
         local width, height = UIParent:GetWidth(), UIParent:GetHeight()
         if finite(width) and finite(height) then
-            for attempt = 0, 39 do
-                x, y = 40 + (attempt % 8) * 32, -40 - (attempt % 8) * 32 + math.floor(attempt / 8) * 40
-                x = math.max(-width / 2 + 180, math.min(width / 2 - 180, x))
-                y = math.max(-height / 2 + 140, math.min(height / 2 - 140, y))
-                local occupied = false
-                for otherKey, other in pairs(detached) do
-                    if otherKey ~= key and other:IsShown() then
-                        local ox, oy = other:GetCenter()
-                        if finite(ox) and finite(oy) and math.abs(ox - width / 2 - x) < 28
-                            and math.abs(oy - height / 2 - y) < 28 then occupied = true; break end
-                    end
+            local ww, wh = window:GetWidth(), window:GetHeight()
+            ww, wh = finite(ww) and ww or 360, finite(wh) and wh or 280
+            local function overlap(other, cx, cy)
+                if not other or other == window or not other:IsShown() then return 0 end
+                local ox, oy = other:GetCenter()
+                if not finite(ox) or not finite(oy) then return 0 end
+                local ow, oh = other:GetWidth(), other:GetHeight()
+                ow, oh = finite(ow) and ow or 360, finite(oh) and oh or 280
+                local dx = math.min(cx + ww/2 + 6, ox + ow/2 + 6) - math.max(cx - ww/2 - 6, ox - ow/2 - 6)
+                local dy = math.min(cy + wh/2 + 6, oy + oh/2 + 6) - math.max(cy - wh/2 - 6, oy - oh/2 - 6)
+                return math.max(0, dx) * math.max(0, dy)
+            end
+            local best = math.huge
+            local rows = math.max(1, math.floor(height / (wh + 12)))
+            local columns = math.max(1, math.floor(width / (ww + 12)))
+            for row = 0, rows - 1 do
+                for col = 0, columns - 1 do
+                    local cx = math.max(ww/2, width - 12 - ww/2 - col * (ww + 12))
+                    local cy = math.max(wh/2, height - 12 - wh/2 - row * (wh + 12))
+                    local area = overlap(main, cx, cy)
+                    for _, other in pairs(detached) do area = area + overlap(other, cx, cy) end
+                    if area < best then x, y, best = cx - width/2, cy - height/2, area end
                 end
-                if not occupied then break end
             end
         end
     end
@@ -134,16 +148,19 @@ local function windowFor(key)
         w:SetPoint("CENTER", UIParent, "CENTER", key and 40 or 0, key and -40 or 0)
     end
     w:SetFrameStrata("HIGH")
+    bringForward(w)
+    w:SetScript("OnShow", function(self) bringForward(self) end)
+    w:SetScript("OnMouseDown", function(self) bringForward(self) end)
     w:SetClampedToScreen(true)
     w:SetMovable(true)
     w:EnableMouse(true)
     w:RegisterForDrag("LeftButton")
-    w:SetScript("OnDragStart", function(self) self:StartMoving() end)
+    w:SetScript("OnDragStart", function(self) bringForward(self); self:StartMoving() end)
     w:SetScript("OnDragStop", function(self) self:StopMovingOrSizing(); FC:SaveWhisperWindowPosition(key, self) end)
     w:SetResizable(true)
     if w.SetResizeBounds then w:SetResizeBounds(key and 320 or 500, 260, 1100, 800) end
     w:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", edgeSize = 24})
-    w:SetBackdropColor(0.035, 0.047, 0.044, 0.55)
+    w:SetBackdropColor(0.035, 0.047, 0.044, key and 1 or 0.55)
     w.title = label(w, "Whisper Conversations", 20, -16, key and 250 or 430)
     local close = CreateFrame("Button", nil, w, "UIPanelCloseButton")
     close:SetPoint("TOPRIGHT", -4, -4)

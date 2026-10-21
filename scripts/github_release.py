@@ -68,10 +68,10 @@ else:
         raise SystemExit("Existing origin differs from the intended project; no push performed.")
 git("add", "--", "CommunicationToolsForever", "tests", "scripts", ".gitignore", "README.md", "USER-GUIDE.md", "DESCRIPTION.md", "LICENSE", "CHANGELOG.md", "RELEASE-NOTES.md")
 if subprocess.run(["git", "-C", str(root), "diff", "--cached", "--quiet"], env=env).returncode:
-    git("commit", "-m", "Prepare CommunicationTools Forever 0.10.3 beta publication")
+    git("commit", "-m", "Prepare CommunicationTools Forever 0.10.4 beta publication")
 commit = git("rev-parse", "HEAD")
 git("push", "-u", "origin", "HEAD:main")
-version = "0.10.3"
+version = "0.10.4"
 try:
     release = call(api + f"/releases/tags/v{version}")
 except urllib.error.HTTPError as error:

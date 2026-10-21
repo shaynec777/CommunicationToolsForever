@@ -1,5 +1,5 @@
 local addonName, FC = ...
-FC.version = "0.10.3"
+FC.version = "0.10.4"
 FC.buffThanksDiagnostics = {}
 function FC:BuffThanksNote(message)
     local entries = self.buffThanksDiagnostics

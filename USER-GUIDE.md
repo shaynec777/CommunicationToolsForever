@@ -117,7 +117,7 @@ Tools register their name, description, `IsEnabled` getter and `SetEnabled` call
 
 ## Acknowledgements
 
-Thanks to **Fenty Od** for help with testing and ideas, and **Proba Croisus** for help with testing.
+Thanks to **Fenty Od** for help with testing and ideas, **Proba Croisus** for help with testing, and **Garok Shrike** for suggestions.
 
 ## Logo
 

@@ -106,7 +106,7 @@ function module:Initialize()
         controls[#controls].configure = configure
     end
     FC.toolMenuControls = controls
-    label(main.content, "Thanks to Fenty Od for testing and ideas, and Proba Croisus for testing.", "GameFontHighlightSmall",
+    label(main.content, "Thanks to Fenty Od for testing and ideas, Proba Croisus for testing, and Garok Shrike for suggestions.", "GameFontHighlightSmall",
         20, -184 - math.ceil(#FC.tools / 2) * 166, 660)
     main.content:SetHeight(224 + math.ceil(#FC.tools / 2) * 166)
     local panel = buff.content

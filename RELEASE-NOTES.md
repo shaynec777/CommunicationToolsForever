@@ -1,9 +1,13 @@
-# CommunicationTools Forever 0.10.3 beta
+# CommunicationTools Forever 0.10.4 beta
 
-- Make <buffname> and <buffername> optional in every thank-you template. Use either, both, or neither; plain messages such as "Thanks!" are supported.
-- Clarify the Buff Thanks settings-page instructions with an example and optional-label guidance.
-- Keep blank entries skipped and require at least one nonblank message. Existing text limits and formatting safeguards remain in place.
+- Fix detached chat text and controls bleeding through other windows by separating window layers. Clicking a window brings its complete frame group forward.
+- Open new detached conversations in tiled screen positions, avoiding open chats when space is available. Previously saved positions remain honored.
+- Make detached windows opaque while keeping the tabbed window translucent.
+- Allow thank-you messages with either <buffname>, <buffername>, both, or neither. Update settings instructions; plain messages such as "Thanks!" work.
+- Credit Garok Shrike for suggestions, alongside Fenty Od and Proba Croisus.
 
-Includes all 0.10.2 Whisper Conversations features and fixes. Lua 5.1 regression tests passed; optional-label messages were confirmed working in-game.
+Includes Whisper Conversations with tabbed/separate modes, detachable windows, saved history, unread counts, per-conversation deletion, saved positions, combat suppression, and separate settings. Buff thanks includes a two-second delay and configurable effect exclusions.
 
-Thanks to Fenty Od for testing and ideas, and Proba Croisus for testing. MIT licensed.
+Lua 5.1 regression suites and package checks passed. In-game testing confirmed optional labels, saved positions, conversation deletion, and the improved detached window layout. Some combat and restricted-data behaviors still benefit from broader testing. Character whispers only; Battle.net chat is unsupported. /say thanks requires a click.
+
+Thanks to Fenty Od for testing and ideas, Proba Croisus for testing, and Garok Shrike for suggestions. MIT licensed.

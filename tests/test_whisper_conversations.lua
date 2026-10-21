@@ -12,6 +12,9 @@ local function fixture(saved)
         if type(relative) == "table" then self.x, self.y = x, y end
     end
     function methods:GetCenter() return 960 + (self.x or 0), 540 + (self.y or 0) end
+    function methods:GetWidth() return self.width end
+    function methods:GetHeight() return self.height end
+    function methods:SetFrameLevel(level) self.frameLevel = level end
     function methods:SetSize(w, h) self.width, self.height = w, h end
     function methods:Clear() self.lines = {} end
     function methods:AddMessage(text) self.lines[#self.lines + 1] = text end
@@ -181,3 +184,18 @@ assert(restart.main().x == 230 and restart.main().y == -170, "Tabbed coordinates
 restart.fc:ClearWhisperHistory()
 assert(restart.fc.db.whisperConversations.position.x == 230, "Clearing chats preserves main window placement")
 print("PASS: tabbed window coordinates persist across close/reopen, reload and clearing history")
+
+local tiles = fixture()
+tiles.fc:RecordConversationWhisper("CHAT_MSG_WHISPER", "Hello", "Tabbed Person")
+tiles.fc:DetachWhisperConversation("tabbed person")
+local firstTile = tiles.detached()
+tiles.fc:SetWhisperConversationMode("separate")
+tiles.fc:RecordConversationWhisper("CHAT_MSG_WHISPER", "Hello", "Tabbed Person")
+tiles.fc:RecordConversationWhisper("CHAT_MSG_WHISPER", "Hello", "Next Person")
+local secondTile
+for _, w in ipairs(tiles.frames) do if w.kind == "Frame" and w.width == 360 and w ~= firstTile then secondTile = w end end
+assert(secondTile and (math.abs(secondTile.x - firstTile.x) >= 360 or math.abs(secondTile.y - firstTile.y) >= 280), "New detached windows tile without overlap when space is available")
+assert(secondTile.frameLevel > firstTile.frameLevel + 5, "Window groups have distinct levels to prevent text bleed")
+firstTile.scripts.OnMouseDown(firstTile)
+assert(firstTile.frameLevel > secondTile.frameLevel, "Clicking a window brings its complete frame group forward")
+print("PASS: detached tiling and separate frame levels prevent overlapping chat controls")
