@@ -35,7 +35,7 @@ Extended Ignore filters local chat display; it does not replace Blizzard's ignor
 
 In-game feedback confirmed buff thanks, including paladin buffs after surname fixes, blacklist filtering, and Ctrl+Shift-click additions. Whisper conversations, per-conversation deletion, and saved window positions are also confirmed in-game. Other controls, layout, and combat options have automated regression coverage and need broader in-game testing.
 
-If something does not work, please report the addon version, tool, steps taken, and any BugSack error. For skipped buff thanks, `/ct diagnosis` displays the recent decisions; `/ct debug on` enables live local diagnostics.
+If something does not work, please report the addon version, tool, steps taken, and what you expected to happen. For skipped buff thanks, `/ct diagnosis` displays the recent decisions; `/ct debug on` enables live local diagnostics.
 
 ## Credits
 
