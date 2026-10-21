@@ -40,7 +40,7 @@ Put `<buffname>` and `<buffername>` anywhere in each message, including in eithe
 
 > Much appreciated for <buffname>, my friend <buffername>!
 
-Both labels are required so every thank-you names the buff and caster. Labels are case-sensitive. Templates are limited to 200 bytes; completed messages over WoW's 255-byte chat limit are skipped without truncating names. Plain text only; line breaks and chat formatting codes are rejected. **Restore defaults** immediately saves the four default messages. Saving or resetting clears queued thanks; preferences persist account-wide. `/ct preview` uses your saved wording.
+Both labels are optional; use either, both, or plain text such as “Thanks!”. Labels are case-sensitive. Templates are limited to 200 bytes; completed messages over WoW's 255-byte chat limit are skipped without truncating names. Plain text only; line breaks and chat formatting codes are rejected. **Restore defaults** immediately saves the four default messages. Saving or resetting clears queued thanks; preferences persist account-wide. `/ct preview` uses your saved wording.
 
 Settings persist account-wide. Queued messages expire after two minutes and are capped at ten. Existing login/zone buffs, self buffs, NPC/pet buffs, stack changes, and refreshes of existing auras do not trigger thanks. Reapplied buffs can trigger after the cooldown. All new player-cast helpful auras qualify, including short combat buffs; there is no spell allowlist yet.
 

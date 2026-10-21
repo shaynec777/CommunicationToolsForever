@@ -2,7 +2,7 @@
 ## Title: CommunicationTools Forever
 ## Notes: Buff Thanks, Extended Ignore, Do Not Disturb, Name Alerts, and Whisper Conversations.
 ## Author: shaynec777
-## Version: 0.10.2
+## Version: 0.10.3
 ## SavedVariables: ForeverCommunicationsDB
 
 Core.lua

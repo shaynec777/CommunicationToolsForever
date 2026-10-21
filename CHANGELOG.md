@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.3 — 2026-10-21
+
+- Allow thank-you templates with either label, both labels, or neither. Clarify settings-page guidance. Confirmed working in-game.
+
 ## 0.10.2 — 2026-10-21
 
 - Save main and detached conversation positions; stagger new windows; add per-conversation deletion and fix settings/chat overlap.

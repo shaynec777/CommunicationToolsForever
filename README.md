@@ -6,7 +6,7 @@ Open `/ct` or right-click ordinary text or blank space in your chat window. Each
 
 ## Tools
 
-- **Buff Thanks:** thank another player using their full character name and the buff they gave you. Choose automatic whispers or a click-to-send /say message. Configure up to four messages using `<buffname>` and `<buffername>`; a nonblank message is selected randomly each time. Thanks wait two seconds; an editable exclusion list skips unwanted effects.
+- **Buff Thanks:** thank another player using their full character name and the buff they gave you. Choose automatic whispers or a click-to-send /say message. Configure up to four messages with optional `<buffname>` and `<buffername>` labels (either, both, or neither); a nonblank message is selected randomly each time. Thanks wait two seconds; an editable exclusion list skips unwanted effects.
 - **Whisper Conversations:** tabbed or separate windows with saved history, detachable chats, unread counts, reply boxes, per-conversation deletion, saved positions, and compact translucent backgrounds. Configure history limits and suppress automatic opening in combat.
 - **Extended Ignore:** hide incoming character chat and whispers from your saved blacklist. Ctrl+Shift+left-click a linked chat name to add it, or enter a full name on the settings page. Optionally send an editable ignore notification, limited to once per sender per minute.
 - **Do Not Disturb:** send a configurable whisper auto-response, optionally relay incoming whispers to another player or refer the sender to that player. Includes optional incoming-whisper hiding and automatic-response loop protection.

@@ -159,7 +159,13 @@ assert(FC.db.extendedIgnore.replyEnabled)
 local template = "100% thanks for <buffname>, <buffername>! <buffname>"
 assert(FC:SetThanksTemplate(template))
 assert(FC:FormatThanks("Fortitude", "Alex") == "100% thanks for Fortitude, Alex! Fortitude")
-assert(not FC:SetThanksTemplate("Missing names"))
+assert(FC:SetThanksTemplate("Thanks!"))
+assert(FC:FormatThanks("Fortitude", "Alex") == "Thanks!", "Plain message without labels saves and renders")
+assert(FC:SetThanksTemplate("Thanks for <buffname>!"))
+assert(FC:FormatThanks("Fortitude", "Alex") == "Thanks for Fortitude!")
+assert(FC:SetThanksTemplate("Thanks, <buffername>!"))
+assert(FC:FormatThanks("Fortitude", "Alex") == "Thanks, Alex!")
+assert(not FC:SetThanksTemplate(" "))
 FC.db.thanksTemplates = nil
 FC.db.thanksTemplate = "Custom thanks to <buffername> for <buffname>!"
 FC:InitializeThanksTemplates()
@@ -174,7 +180,7 @@ for index = 1, 4 do
 end
 math.random = random
 assert(not FC:SetThanksTemplates({"", "", "", ""}), "All-blank pools rejected")
-assert(not FC:SetThanksTemplates({pool[1], "Missing labels", "", ""}))
+assert(not FC:SetThanksTemplates({pool[1], "Invalid | formatting", "", ""}))
 assert(FC.db.thanksTemplates[2] == pool[2], "Invalid pool save is atomic")
 assert(FC:SetThanksTemplates({"", pool[2], " ", ""}))
 assert(FC:FormatThanks("Fortitude", "Alex") == "Choice 2: Fortitude, Alex!", "Blank slots excluded")

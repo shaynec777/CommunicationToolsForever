@@ -121,7 +121,7 @@ function module:Initialize()
     text("Changes take effect immediately and are saved account-wide. Changing either setting clears queued thanks.",
         "GameFontHighlightSmall", 20, y - 156, 440)
     text("Random thank-you messages", "GameFontNormal", 20, -210)
-    text("One nonblank message is chosen randomly for each thanks. Include <buffname> and <buffername> in each. Leave unused entries blank; keep at least one. Maximum 200 bytes each, 255 after substitution.",
+    text("Use any wording, even just \"Thanks!\". Labels are optional: <buffname> inserts the buff; <buffername> inserts the player. Use either, both, or neither. One nonblank message is picked randomly. Leave unused boxes blank; keep at least one. Limit: 200 bytes each, 255 after substitution.",
         "GameFontHighlightSmall", 20, -238, 440)
     local templates, previews = {}, {}
     for index = 1, 4 do

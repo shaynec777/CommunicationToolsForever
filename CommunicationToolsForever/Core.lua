@@ -1,5 +1,5 @@
 local addonName, FC = ...
-FC.version = "0.10.2"
+FC.version = "0.10.3"
 FC.buffThanksDiagnostics = {}
 function FC:BuffThanksNote(message)
     local entries = self.buffThanksDiagnostics
@@ -26,13 +26,10 @@ local defaults = { enabled = true, channel = "WHISPER", cooldown = 60,
     thanksTemplate = FC.defaultThanksTemplate }
 
 function FC:ValidateThanksTemplate(template)
-    if type(template) ~= "string" or #template > 200 then
-        return false, "Use a template of at most 200 bytes."
+    if type(template) ~= "string" or not template:find("%S") or #template > 200 then
+        return false, "Use a nonblank template of at most 200 bytes."
     end
     if template:find("[%c|]") then return false, "Use plain text without line breaks or chat formatting codes." end
-    if not template:find("<buffname>", 1, true) or not template:find("<buffername>", 1, true) then
-        return false, "Include both <buffname> and <buffername>."
-    end
     return true
 end
 
