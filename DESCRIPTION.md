@@ -13,10 +13,6 @@ Open `/ct` or right-click ordinary text or blank space in your chat window. Each
 - **Name Alerts:** notice mentions of your full name, first name, or surname in selected chat types. Choose whole-word or substring matching, sound, and a banner showing the channel and sender. Banners last twelve seconds, have a close button, and can be suppressed in combat.
 - A vintage radio-and-microphone logo, a main tool menu, and separate settings pages. Preferences are saved account-wide.
 
-## Fixes and compatibility
-
-Forever names include surnames. Whisper recipients use the full character name without a realm suffix. Buff Thanks excludes your own casts, but does not exclude spells you can cast yourself. Existing login/reload buffs do not generate thanks: startup events are ignored for five seconds, and older or undated buffs are skipped. Restricted aura enumeration is not used.
-
 ## Installation
 
 Extract the `CommunicationToolsForever` folder from the ZIP into your Forever client's `Interface/AddOns` folder. The `.toc` file must sit directly inside that folder. Fully restart the game when installing a new addon. Use `/ct` to open the menu.
@@ -25,17 +21,9 @@ For updates, replace the existing addon files and restart or reload the game. If
 
 Buff Thanks, Extended Ignore, Name Alerts, and Whisper Conversations start enabled. Do Not Disturb starts disabled. Each tool can be enabled or disabled independently.
 
-## Forever beta limits and testing
+## Compatibility
 
-This release targets Forever 1.60.1 (interface 16001) and is published as a **beta**.
-
-Forever may withhold aura, caster, or whisper data. If information is restricted or a caster cannot be identified, the addon skips that action. Permanent or undated buffs do not generate thanks. /say requires clicking the send button. Character whispers are supported; Battle.net account chat is not. Addon chat remains subject to Blizzard's restrictions.
-
-Extended Ignore filters local chat display; it does not replace Blizzard's ignore list or hide chat bubbles. Native ignores can prevent incoming whisper events from reaching the addon, so an ignore notification may not be possible. DND does not change Blizzard's native `/dnd` status. Automatic replies have cooldowns and rate limits.
-
-In-game feedback confirmed buff thanks, including paladin buffs after surname fixes, blacklist filtering, and Ctrl+Shift-click additions. Whisper conversations, per-conversation deletion, and saved window positions are also confirmed in-game. Other controls, layout, and combat options have automated regression coverage and need broader in-game testing.
-
-If something does not work, please report the addon version, tool, steps taken, and what you expected to happen. For skipped buff thanks, `/ct diagnosis` displays the recent decisions; `/ct debug on` enables live local diagnostics.
+Designed for World of Warcraft: Forever 1.60.1. Character whispers are supported; Battle.net account conversations are not. Whisper history and tool preferences are saved locally, account-wide. Public /say thanks are sent using the on-screen send button.
 
 ## Credits
 
