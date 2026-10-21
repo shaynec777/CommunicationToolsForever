@@ -1,26 +1,16 @@
-# CommunicationTools Forever 0.10.1 — Initial beta
+# CommunicationTools Forever 0.10.2 beta
 
-## New in this release
+- Add Whisper Conversations with tabbed or separate windows, detachable chats, reply boxes, unread counts, and saved history.
+- Add its own settings page with automatic opening, combat suppression, history limits, and clear-history controls.
+- Save the tabbed window position and each person's detached position across reloads and logouts. New detached chats cascade away from open windows.
+- Add a delete button beside each conversation tab to remove that person's saved conversation.
+- Use compact, resizable whisper windows with translucent backgrounds. Opening conversations closes settings; dialogs remain above chats.
+- Preserve drafts when switching or attaching chats, and avoid switching recipients while typing.
+- Respect Extended Ignore and DND hiding; support full Forever surnames without realm suffixes.
+- Delay buff thanks by two seconds and add an editable buff exclusion list, excluding Cantation of Manifestation by default.
 
-- Four independent tools: Buff Thanks, Extended Ignore, Do Not Disturb, and Name Alerts.
-- Four editable thank-you templates with random selection, real buff/caster labels, whisper or click-to-send /say delivery, repeat cooldowns, and startup suppression.
-- Blacklist editing, Ctrl+Shift-click additions, and optional configurable ignore notifications.
-- DND auto-response, relay/referral options, optional whisper hiding, and loop protection.
-- Name matching by full name, first name, or surname; configurable chat groups, sound, channel-aware twelve-second banner, manual dismissal, and combat popup suppression.
-- HunterTools-style main menu, tool toggles, individual settings pages, account-wide saved preferences, and original radio/microphone artwork.
+Lua 5.1 regression tests passed, including saved-history reloads, window modes, replies, deletion, positions, startup suppression, and tool integration. In-game testing confirmed whisper conversations, individual and tabbed window positions, and conversation deletion. Latest dialog-layering fixes and exclusion controls have automated coverage; broader in-game testing remains welcome.
 
-## Fixes and refinements included
+History is stored locally in account-wide saved variables, bounded to 40 people with configurable message limits. Character whispers only; Battle.net chat is unsupported. Forever restrictions can prevent identifying a caster or processing a whisper. /say thanks requires a click.
 
-- Preserve Forever surnames in blacklist entries, whisper recipients, and thank-you text.
-- Omit API realm labels from Forever whisper addresses.
-- Avoid restricted aura enumeration and do not thank for pre-existing login/reload buffs.
-- Recognize buffs from other players even when the recipient can cast the same spell.
-- Exclude blacklisted senders and automated responses from DND relaying and name-alert noise.
-
-## Validation and known limits
-
-Lua 5.1 regression suites cover tool navigation, blacklist behavior, auto-replies, DND, names/surnames, buff startup handling and caster resolution, randomized templates, channel labels, and combat popup suppression. Package checks verify TOC references, addon-only ZIP root, CRC, and source/archive hashes.
-
-In-game feedback confirmed buff thanks, blacklist filtering, and Ctrl+Shift-click additions. The newer tools and four-template editor require wider in-game validation. Forever beta restrictions can prevent identifying a buff caster or processing a whisper. Permanent/undated buffs are skipped; /say needs a click. Battle.net account chat is not supported.
-
-Thanks to Fenty Od for testing and ideas, and Proba Croisus for testing.
+Thanks to Fenty Od for testing and ideas, and Proba Croisus for testing. MIT licensed.

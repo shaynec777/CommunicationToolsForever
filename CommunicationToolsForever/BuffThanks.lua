@@ -81,12 +81,32 @@ local function resolveCaster(id, source)
     return name, realm
 end
 
+function FC:SetBuffExclusions(text)
+    if type(text) ~= "string" or #text > 4000 or text:find("[|%z]") then return false, "Use plain buff names, one per line (up to 4000 bytes)." end
+    local entries = {}
+    for line in text:gmatch("[^\r\n]+") do
+        local name = line:match("^%s*(.-)%s*$")
+        if name ~= "" then entries[(strlower or string.lower)(name)] = name end
+    end
+    self.db.buffExclusions = entries
+    return true
+end
+function FC:GetBuffExclusionsText()
+    local names = {}
+    for _, name in pairs(self.db.buffExclusions or {}) do names[#names + 1] = name end
+    table.sort(names)
+    return table.concat(names, "\n")
+end
+
 local function thank(aura)
     -- A buff the player can cast still qualifies when someone else casts it.
     -- Never use canApplyAura, class, or spellbook knowledge to exclude it.
     local id, spell, source = identify(aura)
     if not FC.db.enabled then note("Skipped: Buff Thanks is disabled."); return end
     if not id or type(spell) ~= "string" then note("Skipped: buff identity is unavailable or restricted."); return end
+    if FC.db.buffExclusions and FC.db.buffExclusions[(strlower or string.lower)(spell)] then
+        note("Skipped " .. spell .. ": excluded buff."); return
+    end
     if not public(aura.isHelpful) or not aura.isHelpful then note("Skipped: aura is not a readable helpful buff."); return end
     -- Reject late synchronization of a timed aura that predates our baseline.
     local duration, expiration = aura.duration, aura.expirationTime
@@ -107,8 +127,13 @@ local function thank(aura)
     local message = FC:FormatThanks(spell, name)
     if not message then note("Skipped " .. spell .. ": completed message is too long."); return end
     thanked[key] = now
-    FC:Deliver(message, target)
-    note("Submitted thanks for " .. spell .. " to " .. target .. " via " .. FC.db.channel .. (FC.db.channel == "SAY" and " (click send button)." or "."))
+    local scheduledGeneration = generation
+    C_Timer.After(2, function()
+        if not worldEntered or generation ~= scheduledGeneration or not FC.db.enabled then return end
+        if FC.db.buffExclusions and FC.db.buffExclusions[(strlower or string.lower)(spell)] then return end
+        FC:Deliver(message, target)
+        note("Submitted thanks for " .. spell .. " to " .. target .. " via " .. FC.db.channel .. (FC.db.channel == "SAY" and " (click send button)." or "."))
+    end)
 end
 
 local function establishBaseline()
@@ -120,6 +145,9 @@ local function establishBaseline()
 end
 
 function module:Initialize()
+    if type(FC.db.buffExclusions) ~= "table" then
+        FC.db.buffExclusions = { ["cantation of manifestation"] = "Cantation of Manifestation" }
+    end
     FC:RegisterTool({
         name = "Buff Thanks",
         settingsPage = "buffThanks",

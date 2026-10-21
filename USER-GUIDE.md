@@ -122,3 +122,12 @@ Thanks to **Fenty Od** for help with testing and ideas, and **Proba Croisus** fo
 ## Logo
 
 `CommunicationToolsForever/Media/RadioLogo.png` is the full-resolution AI-generated source. `RadioLogo.tga` is the uncompressed 512×256 RGBA game texture, padded to preserve the artwork's proportions and transparency. The built-in image generation tool produced the logo; its prompt is saved in `Media/LogoPrompt.txt`.
+
+
+## Whisper Conversations (next release)
+
+Open `/ct`, enable **Whisper Conversations**, and choose **Configure**. Choose a tabbed window or a separate window per person. In tabbed mode, **Detach** moves a chat into its own window; **Attach to tabs** returns it. Drag windows to move them and use the bottom-right grip to resize. Enter or **Send** submits a reply. Closing a window keeps its history; **Open conversations** in settings restores access. Incoming messages do not switch tabs while you are typing a reply.
+
+History persists in the existing account-wide saved variables across reloads/logouts, with 50, 100 (default), 250, or 500 messages per person and up to 40 recent people. The settings page includes a two-click **Clear all saved history** control. Normal chat whispers remain visible. Extended Ignore excludes blocked senders; DND hide suppresses automatic display. Combat suppression (enabled by default) records messages without opening windows. Disabling the tool hides its windows and pauses recording. Character whispers only; Battle.net conversations are not supported.
+
+Buff Thanks settings include **Excluded buffs**, one exact localized buff name per line (case-insensitive). Click **Save excluded buffs** to apply. Cantation of Manifestation is excluded by default; delete it from the list to allow it again. Whisper windows default to compact sizes with 55% background opacity and remain resizable.

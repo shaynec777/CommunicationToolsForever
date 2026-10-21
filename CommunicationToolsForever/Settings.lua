@@ -66,6 +66,7 @@ function module:Initialize()
     local ignore = page("extendedIgnore", "Extended Ignore settings", 550, 660)
     local dnd = page("doNotDisturb", "Do Not Disturb settings", 550, 660)
     local mentions = page("nameAlerts", "Name Alerts settings", 550, 660)
+    local conversations = page("whisperConversations", "Whisper Conversations settings", 550, 660)
     local logo = main.content:CreateTexture(nil, "ARTWORK")
     logo:SetSize(220, 110)
     logo:SetPoint("TOPLEFT", 12, 0)
@@ -184,13 +185,37 @@ function module:Initialize()
         FC:SetThanksTemplates(FC.defaultThanksTemplates)
         feedback:SetText("Default message pool restored.")
     end)
-    panel:SetHeight(958)
+    text("Excluded buffs (one exact buff name per line)", "GameFontNormal", 20, -960, 440)
+    text("These effects never trigger thanks. Remove a name to allow it again.", "GameFontHighlightSmall", 20, -986, 440)
+    local exclusions = CreateFrame("EditBox", nil, panel, "InputBoxTemplate")
+    exclusions:SetPoint("TOPLEFT", 24, -1020)
+    exclusions:SetSize(425, 110)
+    exclusions.isBuffExclusions = true
+    exclusions:SetMultiLine(true)
+    exclusions:SetAutoFocus(false)
+    exclusions:SetMaxBytes(4000)
+    exclusions:SetText(FC:GetBuffExclusionsText())
+    exclusions:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
+    local saveExclusions = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+    saveExclusions:SetPoint("TOPLEFT", 20, -1140)
+    saveExclusions:SetSize(180, 28)
+    saveExclusions:SetText("Save excluded buffs")
+    local exclusionStatus = text("", "GameFontHighlightSmall", 20, -1180, 440)
+    saveExclusions:SetScript("OnClick", function()
+        local ok, reason = FC:SetBuffExclusions(exclusions:GetText())
+        exclusionStatus:SetText(ok and "Excluded buffs saved." or reason)
+        if ok then exclusions:ClearFocus() end
+    end)
+    panel:SetHeight(1230)
     local function ignoreText(value, font, x, y, width) return label(ignore.content, value, font, x, y, width) end
     ignore.content:SetHeight(FC:BuildExtendedIgnoreSettings(ignore.content, -8, ignoreText))
     local function dndText(value, font, x, y, width) return label(dnd.content, value, font, x, y, width) end
     dnd.content:SetHeight(FC:BuildDNDSettings(dnd.content, dndText))
     local function mentionsText(value, font, x, y, width) return label(mentions.content, value, font, x, y, width) end
     mentions.content:SetHeight(FC:BuildNameAlertsSettings(mentions.content, mentionsText))
+
+    local function conversationText(value, font, x, y, width) return label(conversations.content, value, font, x, y, width) end
+    conversations.content:SetHeight(FC:BuildWhisperConversationSettings(conversations.content, conversationText))
 
     function FC:RefreshSettings()
         for _, entry in ipairs(controls) do
@@ -205,6 +230,7 @@ function module:Initialize()
         self:RefreshIgnoreReplySettings()
         self:RefreshDNDSettings()
         self:RefreshNameAlertsSettings()
+        self:RefreshWhisperConversationSettings()
     end
     -- Always re-check the chosen option, even when clicking the selected channel.
     whisper:SetScript("OnClick", function() FC:SetBuffThanksChannel("WHISPER") end)

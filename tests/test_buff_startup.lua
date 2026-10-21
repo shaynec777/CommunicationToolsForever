@@ -2,6 +2,7 @@ local function fixture()
     local time, list, timers, sends, targets = 100, {}, {}, {}, {}
     local secret, restricted, failScan = {}, false, false
     local reads = 0
+    local holdThanks, pendingThanks = false, {}
     local frame
     local FC = { modules = {}, db = { enabled = true, cooldown = 60, channel = "WHISPER" } }
     function FC:IsPublic(value) return value ~= secret end
@@ -19,7 +20,12 @@ local function fixture()
         return frame
     end
     GetTime = function() return time end
-    C_Timer = { After = function(_, callback) timers[#timers + 1] = callback end }
+    C_Timer = { After = function(delay, callback)
+        if delay == 2 then
+            if holdThanks then pendingThanks[#pendingThanks + 1] = { at = time + delay, callback = callback }
+            else callback() end
+        else timers[#timers + 1] = callback end
+    end }
     C_Secrets = { ShouldAurasBeSecret = function() return restricted end }
     C_UnitAuras = { GetAuraDataByIndex = function(_, index)
         reads = reads + 1
@@ -38,6 +44,16 @@ local function fixture()
             isHelpful = true, duration = 3600, expirationTime = start + 3600 }
     end
     return {
+        db = FC.db,
+        holdThanks = function() holdThanks = true end,
+        runDue = function()
+            for i = #pendingThanks, 1, -1 do
+                if pendingThanks[i].at <= time then
+                    local entry = table.remove(pendingThanks, i)
+                    entry.callback()
+                end
+            end
+        end,
         fire = fire, aura = aura, sends = sends, targets = targets, timers = timers, secret = secret,
         setTime = function(value) time = value end,
         setList = function(value) list = value end,
@@ -209,3 +225,43 @@ UnitNameUnmodified = nil
 f.fire("UNIT_AURA", { addedAuras = {f.aura(62, 110, "Blessing of Kings")} })
 assert(f.targets[3] == "Bobby Eggrollz", "UnitFullName fallback also preserves surname")
 print("PASS: Forever first-name/surname recipient and template formatting, no duplicated surnames")
+
+-- Delayed delivery remains silent until two seconds and cancels on disable/world exit.
+f = fixture()
+f.holdThanks()
+f.fire("PLAYER_ENTERING_WORLD")
+f.setTime(105)
+f.timers[1]()
+f.setTime(110)
+f.fire("UNIT_AURA", { addedAuras = {f.aura(70, 110)} })
+assert(#f.sends == 0, "Thanks must not send immediately")
+f.setTime(111.99)
+f.runDue()
+assert(#f.sends == 0, "Thanks must wait the full two seconds")
+f.setTime(112)
+f.runDue()
+assert(#f.sends == 1, "Thanks sends after two seconds")
+f.setTime(113)
+f.fire("UNIT_AURA", { addedAuras = {f.aura(71, 113, "Kings")} })
+f.db.enabled = false
+f.setTime(115)
+f.runDue()
+assert(#f.sends == 1, "Disabling tool cancels pending thanks")
+f.db.enabled = true
+f.fire("UNIT_AURA", { addedAuras = {f.aura(72, 115, "Wisdom")} })
+f.fire("PLAYER_LEAVING_WORLD")
+f.setTime(117)
+f.runDue()
+assert(#f.sends == 1, "Leaving world cancels pending thanks")
+print("PASS: two-second buff thanks delay and pending delivery cancellation")
+
+f = fixture()
+f.fire("PLAYER_ENTERING_WORLD")
+f.setTime(105)
+f.timers[1]()
+f.setTime(110)
+f.fire("UNIT_AURA", {addedAuras = {f.aura(90, 110, "Cantation of Manifestation")}})
+assert(#f.sends == 0, "Quest effect excluded by default")
+f.fire("UNIT_AURA", {addedAuras = {f.aura(91, 110, "Blessing of Might")}})
+assert(#f.sends == 1, "Normal buffs remain eligible")
+print("PASS: incidental quest effect excluded while normal buffs still qualify")

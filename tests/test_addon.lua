@@ -66,13 +66,13 @@ hooksecurefunc = function(name, callback) hooks[name] = callback end
 FCF_OpenNewWindow = function() end
 FCF_OpenTemporaryWindow = function() end
 local FC = {}
-for _, file in ipairs({"Core.lua", "BuffThanks.lua", "ExtendedIgnore.lua", "DoNotDisturb.lua", "NameAlerts.lua", "Settings.lua", "ChatAccess.lua"}) do
+for _, file in ipairs({"Core.lua", "BuffThanks.lua", "ExtendedIgnore.lua", "DoNotDisturb.lua", "NameAlerts.lua", "WhisperConversations.lua", "Settings.lua", "ChatAccess.lua"}) do
     assert(loadfile("CommunicationToolsForever/" .. file))("CommunicationToolsForever", FC)
 end
 for _, f in ipairs(frames) do
     if f.scripts.OnEvent then f.scripts.OnEvent(f, "ADDON_LOADED", "CommunicationToolsForever") end
 end
-assert(#FC.tools == 4, "All tools initialize before settings")
+assert(#FC.tools == 5, "All tools initialize before settings")
 assert(FC.db.extendedIgnore.enabled)
 assert(FC:AddBlacklistName("  Alice  "))
 assert(FC:IsBlacklisted("ALICE-Home Realm"), "Case and realm whitespace normalization")
@@ -185,7 +185,7 @@ assert(FC:FormatThanks(longBuff, "Alex") == "Choice 2: " .. longBuff .. ", Alex!
 assert(FC:SetThanksTemplates(FC.defaultThanksTemplates))
 local editors, savePool = {}, nil
 for _, f in ipairs(frames) do
-    if f.kind == "EditBox" and f.parent == FC.settingsPages.buffThanks.content then editors[#editors + 1] = f end
+    if f.kind == "EditBox" and f.parent == FC.settingsPages.buffThanks.content and f.isBuffExclusions ~= true then editors[#editors + 1] = f end
     if f.text == "Save messages" then savePool = f end
 end
 assert(#editors == 4 and savePool)
@@ -229,7 +229,7 @@ SlashCmdList.FOREVERCOMMUNICATIONS("")
 assert(openCount == 5, "Bare /ct opens settings")
 SlashCmdList.FOREVERCOMMUNICATIONS("status")
 assert(openCount == 5, "Explicit status does not open settings")
-assert(#FC.toolMenuControls == 4)
+assert(#FC.toolMenuControls == 5)
 local buffCard, ignoreCard = FC.toolMenuControls[1], FC.toolMenuControls[2]
 buffCard.configure.scripts.OnClick()
 assert(FC.currentSettingsPage == "buffThanks")
@@ -283,7 +283,35 @@ namesCard.control:SetChecked(true)
 namesCard.control.scripts.OnClick(namesCard.control)
 print("PASS: Lua 5.1 addon initialization, blacklist filters/editor/clicks, persistence, templates, and right-click access with link exclusion and new windows")
 print("PASS: main tool cards, separate tool pages, independent enable checkboxes, disabled-tool settings and back navigation")
+assert(FC:SetBuffExclusions("Cantation of Manifestation\n Test Buff "))
+assert(FC.db.buffExclusions["test buff"] == "Test Buff")
+assert(FC:GetBuffExclusionsText():find("Cantation of Manifestation", 1, true))
+assert(not FC:SetBuffExclusions("|Hbad"))
+assert(FC:SetBuffExclusions(""))
+assert(next(FC.db.buffExclusions) == nil)
+local conversationCard = FC.toolMenuControls[5]
+conversationCard.configure.scripts.OnClick()
+assert(FC.currentSettingsPage == "whisperConversations" and FC.settingsPages.whisperConversations.root.shown)
+conversationCard.control:SetChecked(false)
+conversationCard.control.scripts.OnClick(conversationCard.control)
+assert(not FC.db.whisperConversations.enabled)
+conversationCard.control:SetChecked(true)
+conversationCard.control.scripts.OnClick(conversationCard.control)
+assert(FC.db.whisperConversations.enabled)
+local openConversations
+for _, f in ipairs(frames) do if f.text == "Open conversations" then openConversations = f end end
+assert(openConversations)
+openConversations.scripts.OnClick()
+assert(not FC.settingsPages.whisperConversations.root.shown and FC.currentSettingsPage == nil,
+    "Opening conversations dismisses settings rather than overlapping controls")
+local conversationWindow
+for _, f in ipairs(frames) do if f.messages and type(f.messages) == "table" and f.reply and type(f.reply) == "table" then conversationWindow = f end end
+assert(conversationWindow and conversationWindow.shown, "Conversation window opens after settings closes")
+
+
 dofile("tests/test_buff_startup.lua")
 dofile("tests/test_dnd.lua")
 dofile("tests/test_ignore_reply.lua")
 dofile("tests/test_name_alerts.lua")
+dofile("tests/test_whisper_conversations.lua")
+

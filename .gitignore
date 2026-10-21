@@ -2,3 +2,6 @@ releases/
 __pycache__/
 *.pyc
 .test-tools/
+
+.collaboration/
+AGENTS.md
