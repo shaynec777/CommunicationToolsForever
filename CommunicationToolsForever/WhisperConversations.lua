@@ -71,6 +71,13 @@ function FC:RefreshWhisperTabs()
         else b:Hide(); b.deleteButton:Hide() end
     end
 end
+function FC:IsConversationReplyFocused()
+    if main and main:IsShown() and main.reply:HasFocus() then return true end
+    for _, window in pairs(detached) do
+        if window:IsShown() and window.reply:HasFocus() then return true end
+    end
+    return false
+end
 function FC:SendConversationWhisper(key, message)
     local c = history[key]
     if not settings.enabled or not c or FC:IsBlacklisted(c.name) then return false end

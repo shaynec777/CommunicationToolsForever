@@ -1,0 +1,16 @@
+## Interface: 11509
+## Title: CommunicationTools Classic
+## Notes: Buff Thanks, Extended Ignore, Do Not Disturb, Name Alerts, and Whisper Conversations.
+## Author: shaynec777
+## Version: 0.10.5
+## SavedVariables: ClassicCommunicationsDB
+
+Core.lua
+ClassicCompat.lua
+BuffThanks.lua
+ExtendedIgnore.lua
+DoNotDisturb.lua
+NameAlerts.lua
+WhisperConversations.lua
+Settings.lua
+ChatAccess.lua

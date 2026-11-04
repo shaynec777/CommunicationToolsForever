@@ -117,6 +117,7 @@ function FC:UpdateQueue()
     button:Show()
 end
 function FC:ClearQueue()
+    self.deliveryGeneration = (self.deliveryGeneration or 0) + 1
     self.pending = {}
     self:UpdateQueue()
 end
@@ -148,8 +149,30 @@ button:SetScript("OnClick", function(_, mouseButton)
 end)
 function FC:Deliver(message, target)
     if self.db.channel == "WHISPER" then
-        if not send(message, "WHISPER", target) then self:Print("Whisper could not be sent.") end
-        return
+        local generation, started = self.deliveryGeneration or 0, GetTime()
+        local function focused()
+            if self.IsConversationReplyFocused and self:IsConversationReplyFocused() then return true end
+            local editor = ChatEdit_GetActiveWindow and ChatEdit_GetActiveWindow()
+            return editor and editor:HasFocus()
+        end
+        local function deliverWhenReady()
+            if generation ~= (self.deliveryGeneration or 0) or not self.db.enabled or self.db.channel ~= "WHISPER" then return "cancelled" end
+            if GetTime() - started >= 120 then
+                self:BuffThanksNote("Expired queued thanks to " .. target .. " while typing."); return "expired"
+            end
+            if focused() then
+                C_Timer.After(0.5, deliverWhenReady)
+                return "queued"
+            end
+            if not send(message, "WHISPER", target) then
+                self:Print("Whisper could not be sent.")
+                self:BuffThanksNote("Whisper send request failed for " .. target .. ".")
+                return "failed"
+            end
+            self:BuffThanksNote("Whisper send requested for " .. target .. "; delivery not yet confirmed.")
+            return "requested"
+        end
+        return deliverWhenReady()
     end
     -- A real click provides the hardware event required by public chat.
     local now = GetTime()

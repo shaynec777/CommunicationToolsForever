@@ -315,6 +315,28 @@ for _, f in ipairs(frames) do if f.messages and type(f.messages) == "table" and 
 assert(conversationWindow and conversationWindow.shown, "Conversation window opens after settings closes")
 
 
+local savedFocus, savedTimer, savedChat, savedChannel = FC.IsConversationReplyFocused, C_Timer, C_ChatInfo, FC.db.channel
+local typing, delayed, delivered = true, {}, {}
+FC.IsConversationReplyFocused = function() return typing end
+C_Timer = {After = function(delay, callback) assert(delay == 0.5); delayed[#delayed + 1] = callback end}
+C_ChatInfo = {SendChatMessage = function(message, channel, language, target) delivered[#delivered + 1] = {message, target} end}
+FC.db.channel, FC.db.enabled = "WHISPER", true
+assert(FC:Deliver("Thanks!", "Norpse Numnum") == "queued")
+assert(#delivered == 0)
+delayed[1]()
+assert(#delivered == 0 and #delayed == 2, "Do not send while typing continues")
+typing = false
+delayed[2]()
+assert(#delivered == 1 and delivered[1][2] == "Norpse Numnum", "Send to buff caster after focus clears")
+typing = true
+FC:Deliver("Thanks again", "Other Person")
+FC:ClearQueue()
+typing = false
+delayed[3]()
+assert(#delivered == 1, "Clearing queue cancels deferred whispers")
+FC.IsConversationReplyFocused, C_Timer, C_ChatInfo, FC.db.channel = savedFocus, savedTimer, savedChat, savedChannel
+print("PASS: buff thanks defers while typing and cancels stale queued delivery")
+
 dofile("tests/test_buff_startup.lua")
 dofile("tests/test_dnd.lua")
 dofile("tests/test_ignore_reply.lua")

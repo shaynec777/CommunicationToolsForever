@@ -5,3 +5,10 @@ __pycache__/
 
 .collaboration/
 AGENTS.md
+
+# Local scratch snippets and account data
+classic-port/buff-shared.txt
+WTF/
+SavedVariables/
+.env
+.env.*

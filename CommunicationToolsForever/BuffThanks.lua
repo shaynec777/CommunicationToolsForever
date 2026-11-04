@@ -131,8 +131,12 @@ local function thank(aura)
     C_Timer.After(2, function()
         if not worldEntered or generation ~= scheduledGeneration or not FC.db.enabled then return end
         if FC.db.buffExclusions and FC.db.buffExclusions[(strlower or string.lower)(spell)] then return end
-        FC:Deliver(message, target)
-        note("Submitted thanks for " .. spell .. " to " .. target .. " via " .. FC.db.channel .. (FC.db.channel == "SAY" and " (click send button)." or "."))
+        local result = FC:Deliver(message, target)
+        if result == "queued" then
+            note("Queued thanks for " .. spell .. " to " .. target .. " until you finish typing.")
+        elseif result ~= "failed" and result ~= "cancelled" and result ~= "expired" then
+            note("Requested thanks for " .. spell .. " to " .. target .. " via " .. FC.db.channel .. (FC.db.channel == "SAY" and " (click send button)." or "; delivery not yet confirmed."))
+        end
     end)
 end
 

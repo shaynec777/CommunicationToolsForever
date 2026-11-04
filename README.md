@@ -32,3 +32,7 @@ Created with OpenAI Codex under the author's direction and in-game testing. The 
 Thanks to **Fenty Od** for testing and ideas, **Proba Croisus** for help with testing, and **Garok Shrike** for suggestions.
 
 MIT licensed. No Blizzard affiliation or endorsement is implied.
+
+## Git source and Classic Era edition
+
+The independent Classic Era source is in `classic-port/CommunicationToolsClassic`. See [LAPTOP_SETUP.md](LAPTOP_SETUP.md) for installing either edition from a Git clone.
