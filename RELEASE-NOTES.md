@@ -1,3 +1,14 @@
+# CommunicationTools Forever 0.10.6 beta
+
+## New in this update
+
+- Align Forever and Classic on version 0.10.6. Both editions now share a version sequence while keeping their own addon folders and saved settings.
+
+## Fixes and refinements
+
+- Includes typing-safe automatic buff thanks: queued whispers wait while a chat or conversation reply box has focus. Stale queued requests are cancelled when the queue is cleared.
+- No new gameplay changes in this synchronization release. Existing features and settings are retained; broader combat testing is still welcome.
+
 # CommunicationTools Forever 0.10.4 beta
 
 - Fix detached chat text and controls bleeding through other windows by separating window layers. Clicking a window brings its complete frame group forward.

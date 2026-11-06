@@ -1,5 +1,9 @@
 # CommunicationTools Classic
 
+## New in this update — 0.10.6 beta
+
+Forever and Classic now share version 0.10.6. Includes typing-safe automatic buff thanks; existing settings are retained. Both editions remain beta releases.
+
 A configurable communication toolbox for World of Warcraft Classic Era. Open `/ct` or right-click ordinary text or blank space in chat. Enable each tool independently from the main menu and configure it on its own settings page.
 
 ## Five tools

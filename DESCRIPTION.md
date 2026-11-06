@@ -1,5 +1,9 @@
 # CommunicationTools Forever
 
+## New in this update — 0.10.6 beta
+
+Forever and Classic now share version 0.10.6. Includes typing-safe automatic buff thanks; existing settings are retained. Both editions remain beta releases.
+
 A communication toolbox for World of Warcraft: Forever, for every class.
 
 Open `/ct` or right-click ordinary text or blank space in your chat window. Each tool has its own enable checkbox and Configure page, inspired by HunterTools Forever.
