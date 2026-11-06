@@ -11,15 +11,15 @@
 
 # Changelog
 
-## 0.10.4 ï¿½ 2026-10-21
+## 0.10.4 — 2026-10-21
 
 - Fix detached chat layering, tile new windows, make detached backgrounds opaque, and thank Garok Shrike for suggestions. Includes optional thank-you labels from 0.10.3.
 
-## 0.10.3 ï¿½ 2026-10-21
+## 0.10.3 — 2026-10-21
 
 - Allow thank-you templates with either label, both labels, or neither. Clarify settings-page guidance. Confirmed working in-game.
 
-## 0.10.2 ï¿½ 2026-10-21
+## 0.10.2 — 2026-10-21
 
 - Save main and detached conversation positions; stagger new windows; add per-conversation deletion and fix settings/chat overlap.
 
