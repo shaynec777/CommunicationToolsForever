@@ -1,24 +1,17 @@
-# CommunicationTools Forever 0.10.6 beta
+# CommunicationTools Forever 0.10.7 beta
 
 ## New in this update
 
-- Align Forever and Classic on version 0.10.6. Both editions now share a version sequence while keeping their own addon folders and saved settings.
+- Add Filter Chat with saved keywords/phrases and independent chat-type switches.
+- Add Filter Guild with per-entry Exact/Partial matching, click-driven /who scans, visible progress and cooldown controls, persistent learned members, clickable guild blacklists, and member exceptions.
+- Add optional roster imports on a dedicated page with website copy/paste instructions and a direct blacklist button. Accept names and copied tables; importing activates the roster and guild filter.
+- Add Friends List for available request approval/decline, friend removal, and local mute/unmute.
+- Use scrolling Add/Enter list editors with individual delete buttons and retained typing focus.
+- Fit all eight tools on the main menu; use rounded window borders with 80% background opacity.
+- Credit Nefas Aeternum for help testing, alongside Fenty Od, Proba Croisus and Garok Shrike.
 
-## Fixes and refinements
+## Compatibility and validation
 
-- Includes typing-safe automatic buff thanks: queued whispers wait while a chat or conversation reply box has focus. Stale queued requests are cancelled when the queue is cleared.
-- No new gameplay changes in this synchronization release. Existing features and settings are retained; broader combat testing is still welcome.
+Guild scans send one /who query per click and observe the client cooldown. Large results require further clicks; offline characters require saved observations or optional roster imports. Character whisper conversations remain separate from Battle.net account chat.
 
-# CommunicationTools Forever 0.10.4 beta
-
-- Fix detached chat text and controls bleeding through other windows by separating window layers. Clicking a window brings its complete frame group forward.
-- Open new detached conversations in tiled screen positions, avoiding open chats when space is available. Previously saved positions remain honored.
-- Make detached windows opaque while keeping the tabbed window translucent.
-- Allow thank-you messages with either <buffname>, <buffername>, both, or neither. Update settings instructions; plain messages such as "Thanks!" work.
-- Credit Garok Shrike for suggestions, alongside Fenty Od and Proba Croisus.
-
-Includes Whisper Conversations with tabbed/separate modes, detachable windows, saved history, unread counts, per-conversation deletion, saved positions, combat suppression, and separate settings. Buff thanks includes a two-second delay and configurable effect exclusions.
-
-Lua 5.1 regression suites and package checks passed. In-game testing confirmed optional labels, saved positions, conversation deletion, and the improved detached window layout. Some combat and restricted-data behaviors still benefit from broader testing. Character whispers only; Battle.net chat is unsupported. /say thanks requires a click.
-
-Thanks to Fenty Od for testing and ideas, Proba Croisus for testing, and Garok Shrike for suggestions. MIT licensed.
+Both editions passed their Lua 5.1 regression and package checks. In-game Forever checks confirmed word filters, guild scans/filtering, partial rules, guild removal, imported blacklist visibility, member exceptions, and declining a friend request. Other friend actions and wider Classic gameplay checks remain open for beta feedback.

@@ -30,6 +30,7 @@ local function frame(kind, name, parent)
     return obj
 end
 function methods:CreateFontString() return frame("FontString") end
+function methods:GetThumbTexture() return frame("Texture") end
 function methods:CreateTexture() return frame("Texture") end
 CreateFrame = frame
 UIParent = { GetWidth = function() return 1920 end, GetHeight = function() return 1080 end }
@@ -67,13 +68,13 @@ FCF_OpenNewWindow = function() end
 FCF_OpenTemporaryWindow = function() end
 UnitFullName = function() return "Alice", "OtherRealm" end
 local FC = {}
-for _, file in ipairs({"Core.lua", "ClassicCompat.lua", "BuffThanks.lua", "ExtendedIgnore.lua", "DoNotDisturb.lua", "NameAlerts.lua", "WhisperConversations.lua", "Settings.lua", "ChatAccess.lua"}) do
+for _, file in ipairs({"Core.lua", "ClassicCompat.lua", "BuffThanks.lua", "ExtendedIgnore.lua", "DoNotDisturb.lua", "NameAlerts.lua", "WhisperConversations.lua", "FilterChat.lua", "FilterGuild.lua", "FriendsList.lua", "Settings.lua", "ChatAccess.lua"}) do
     assert(loadfile("classic-port/CommunicationToolsClassic/" .. file))("CommunicationToolsClassic", FC)
 end
 for _, f in ipairs(frames) do
     if f.scripts.OnEvent then f.scripts.OnEvent(f, "ADDON_LOADED", "CommunicationToolsClassic") end
 end
-assert(#FC.tools == 5)
+assert(#FC.tools == 8)
 assert(FC.settingsPages.whisperConversations)
 assert(SLASH_FOREVERCOMMUNICATIONS1 == "/ct")
 assert(FC:NormalizeBlacklistName("Alice-OtherRealm") == "alice-otherrealm")
@@ -100,5 +101,20 @@ FC:ClearQueue()
 typing = false
 timers[2]()
 assert(#sends == 1)
-print("PASS: Classic five-tool initialization, settings, realm identity, optional templates and DND")
+print("PASS: Classic eight-tool initialization, settings, realm identity, optional templates and DND")
+assert(FC:AddChatFilterKeyword("spam"))
+assert(FC:IsChatFiltered("a SPAM message", "CHAT_MSG_GUILD"))
+FC.db.filterChat.scopes.guild = false
+assert(not FC:IsChatFiltered("spam", "CHAT_MSG_GUILD"))
+assert(FC:ImportGuildRoster("Test Guild", "Character\tClass\nAlice-OtherRealm\tMage\nBob\tHunter", true))
+assert(FC:IsGuildFiltered("Alice-OtherRealm", nil))
+assert(not FC:IsGuildFiltered("Alice-DifferentRealm", nil))
+assert(FC:RemoveGuildBlacklistMember("Test Guild", "Alice-OtherRealm"))
+assert(not FC:IsGuildFiltered("Alice-OtherRealm", nil))
+assert(FC:IsGuildFiltered("Bob", nil))
+assert(FC.settingsPages.guildImport and FC.settingsPages.friendsList)
+print("PASS: Classic scoped word filtering, activated roster imports, realm identities and member exceptions")
 dofile("classic-port/tests/test_buffs.lua")
+
+assert(loadfile("tests/test_guild_scan.lua"))("classic-port/CommunicationToolsClassic")
+assert(loadfile("tests/test_friends_list.lua"))("classic-port/CommunicationToolsClassic")

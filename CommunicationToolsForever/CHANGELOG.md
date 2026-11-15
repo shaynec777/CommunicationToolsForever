@@ -1,25 +1,87 @@
-# CommunicationTools Forever 0.10.6 beta
+# 0.10.7 beta - November 15, 2026
 
-## New in this update
+- Roster page imports now activate the guild filter and imported rosters, with a direct View guild blacklists button.
 
-- Align Forever and Classic on version 0.10.6. Both editions now share a version sequence while keeping their own addon folders and saved settings.
+- Move roster importing to a dedicated page with a visible Import guild roster button atop Filter Guild, keeping the form above website instructions.
 
-## Fixes and refinements
+- Accept copied roster tables whose columns arrive as spaces or nonbreaking spaces, including multiword races and Guild master ranks; verified against the 16-name Grumpy Gamers sample.
 
-- Includes typing-safe automatic buff thanks: queued whispers wait while a chat or conversation reply box has focus. Stale queued requests are cancelled when the queue is cleared.
-- No new gameplay changes in this synchronization release. Existing features and settings are retained; broader combat testing is still welcome.
+- Parse copied guild roster titles, column headers and table rows into member names; support quoted roster blocks with line-ending backslashes.
+
+- Match HunterTools window styling with rounded tooltip borders, inset backgrounds and 80% background opacity across settings, whisper windows and Name Alerts.
+
+- Gray out all guild Scan buttons while waiting for results, during cooldown, in combat, or when scanning is unavailable; automatically re-enable them when ready.
+
+- Fix Scan resurrecting unrelated deleted guild rules; scan only current entries and require explicit restore/re-add for deleted rules.
+
+- Add exact-guild Scan buttons to the guild directory and prominent progress panels on both guild pages, with state, search counts and found-member counts.
+
+- Add a Scan button beside each guild rule to search that guild independently, with guild-entry instructions updated to explain the workflow.
+
+- Keep guild scans from opening Blizzard's Who window, restoring normal result handling after completion, timeout or cancellation; explain the per-request click requirement.
+
+- Search every guild once before subdividing capped results, preventing large first-guild scans from delaying later entries; show the next guild in scan status.
+
+- Let an explicit guild Scan restore and rediscover removed guilds, including emptied partial families, while preserving individual member exceptions.
+
+- Explain the Scan step beside the guild-name entry box.
+
+- Remove a partial guild filter when its last known matching guild is deleted from the directory; repair previously emptied families on reload and preserve restore behavior.
+
+- Guild scanning, guild-message filtering, and partial guild-name rules reported working in-game by the user on November 15, 2026. Cross-session persistence and scan edge cases remain unconfirmed.
+
+- Compact the main toolbox into two columns of four cards so all eight tools and credits fit without scrolling.
+
+- Add delete buttons beside guilds in the member directory, with persistent exact-guild exemptions for partial rules and a restore control.
+
+- Thank Nefas Aeternum for help with testing.
+
+- Move Scan, its progress message, and View guild blacklists to the top of Filter Guild.
+
+- Replace previous/next guild navigation with a clickable guild directory showing member counts and opening individual blacklists.
+
+- Word filtering confirmed working in-game by the user on November 15, 2026.
+
+- Make Exact / Partial guild-name matching independent for each blacklist entry, with existing global preferences migrated per entry.
+
+- Add click-driven /who guild scans with a cooldown, capped-result level splitting, and saved name-based membership.
+- Add per-guild member blacklists with persistent member exceptions and cleanup when a guild rule is removed.
+- Add a copyable roster website link, step-by-step import guidance, and support for tab-separated roster rows.
+
+- Persist learned guild memberships between sessions, refresh them on later sightings, and add a Forget learned guilds control.
+
+- Standardize guild, ignored-player and excluded-buff editors with Add/Enter, persistent input focus, scrollbars, and individual delete buttons.
+- Add optional case-insensitive partial guild-name matching, including imported rosters, for names such as Olympus and OLYMPUS IX.
+
+- Add a visible draggable scrollbar, arrow controls and mouse-wheel scrolling to the Filter Chat term list.
+
+- Keep focus in the Filter Chat input after adding a term so repeated typing and Enter works.
+
+- Replace the Filter Chat text editor with a Words to trigger filter input, Add term button, paged term list, and individual delete buttons; changes save immediately.
+
+- Add Friends List with pending request approval/decline, confirmed removal, and local friend mutes.
+- Fix multiline filter editors with bordered scrollable viewports and compact chat-channel options.
+
+- Fix startup and /ct settings access by removing the unsupported UNIT_GUILD_UPDATE event registration.
+
+- Add Filter Chat with an account-wide keyword/phrase blacklist, case-insensitive matching, and channel selections including separate Trade and guild controls.
+- Add Filter Guild with an exact-name guild blacklist and filtering for members identified from available players or recent sightings.
+- Add optional guild roster imports, off by default, with paste instructions, replacement/removal controls, and recent in-game membership taking priority.
+
+- Defer automatic buff-thank whispers while a chat or conversation reply editor has focus; cancel stale queued requests when the queue is cleared.
+- Include the separate Classic Era source and laptop installation instructions in Git.
 
 # Changelog
 
-## 0.10.4 — 2026-10-21
+## 0.10.4 â€” 2026-10-21
 
 - Fix detached chat layering, tile new windows, make detached backgrounds opaque, and thank Garok Shrike for suggestions. Includes optional thank-you labels from 0.10.3.
 
-## 0.10.3 — 2026-10-21
+## 0.10.3 â€” 2026-10-21
 
 - Allow thank-you templates with either label, both labels, or neither. Clarify settings-page guidance. Confirmed working in-game.
 
-## 0.10.2 — 2026-10-21
+## 0.10.2 â€” 2026-10-21
 
 - Save main and detached conversation positions; stagger new windows; add per-conversation deletion and fix settings/chat overlap.
 

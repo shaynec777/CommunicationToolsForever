@@ -151,8 +151,7 @@ function module:Initialize()
     local close = CreateFrame("Button", "CommunicationToolsForeverNameAlertClose", banner, "UIPanelCloseButton")
     close:SetPoint("TOPRIGHT", -2, -2)
     close:SetScript("OnClick", function() banner:Hide() end)
-    banner:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", edgeSize = 24})
-    banner:SetBackdropColor(0.035, 0.047, 0.044, 0.95)
+    FC:StyleWindow(banner)
     local title = banner:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     title:SetPoint("TOP", 0, -16)
     title:SetSize(500, 36)
@@ -183,14 +182,14 @@ function module:Initialize()
     local listener = CreateFrame("Frame")
     for event in pairs(eventGroups) do listener:RegisterEvent(event) end
     listener:RegisterEvent("PLAYER_REGEN_DISABLED")
-    listener:SetScript("OnEvent", function(_, event, message, author, _, channelName, _, _, _, channelIndex, channelBase)
+    listener:SetScript("OnEvent", function(_, event, message, author, _, channelName, _, _, channelID, channelIndex, channelBase, languageID, lineID, guid)
         if event == "PLAYER_REGEN_DISABLED" then
             if settings.suppressInCombat then banner:Hide() end
             return
         end
         if not settings.enabled or not settings[eventGroups[event]] then return end
         if not public(message) or not public(author) or type(message) ~= "string" or type(author) ~= "string" then return end
-        if FC:IsBlacklisted(author) or message:match("^%[CT [^%]]+%]") then return end
+        if (FC.IsFriendMuted and FC:IsFriendMuted(author, guid)) or (FC.IsChatFiltered and FC:IsChatFiltered(message, event, channelID)) or (FC.IsGuildFiltered and FC:IsGuildFiltered(author, guid)) or FC:IsBlacklisted(author) or message:match("^%[CT [^%]]+%]") then return end
         local full = FC:GetNameAlertIdentity()
         if not full then return end
         local authorKey = FC:NormalizeBlacklistName(author)

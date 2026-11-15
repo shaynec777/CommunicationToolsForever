@@ -1,5 +1,5 @@
 local addonName, FC = ...
-FC.version = "0.10.6"
+FC.version = "0.10.7"
 FC.buffThanksDiagnostics = {}
 function FC:BuffThanksNote(message)
     local entries = self.buffThanksDiagnostics
@@ -104,6 +104,17 @@ end
 
 function FC:IsPublic(value)
     return not issecretvalue or not issecretvalue(value)
+end
+
+function FC:StyleWindow(frame)
+    frame:SetBackdrop({
+        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        edgeSize = 16,
+        insets = {left = 4, right = 4, top = 4, bottom = 4},
+    })
+    frame:SetBackdropColor(0.055, 0.075, 0.067, 0.80)
+    frame:SetBackdropBorderColor(0.48, 0.53, 0.46, 0.50)
 end
 
 local button = CreateFrame("Button", "ForeverCommunicationsSendButton", UIParent, "UIPanelButtonTemplate")

@@ -21,6 +21,22 @@ function FC:GetBuffExclusionsText()
 end
 
 
+function FC:AddBuffExclusion(value)
+    if not self:IsPublic(value) or type(value) ~= "string" or value:find("[%c|]") then return false, "Enter one plain-text buff name." end
+    value = value:match("^%s*(.-)%s*$")
+    if value == "" then return false, "Enter a buff name." end
+    local key = (strlower or string.lower)(value)
+    if self.db.buffExclusions[key] then return false, "That buff is already excluded." end
+    local current = self:GetBuffExclusionsText()
+    local ok, reason = self:SetBuffExclusions(current == "" and value or (current .. "\n" .. value))
+    return ok, ok and ("Excluded: " .. value) or reason
+end
+function FC:RemoveBuffExclusion(value)
+    if type(value) ~= "string" then return false, "Enter a buff name." end
+    self.db.buffExclusions[(strlower or string.lower)(value)] = nil
+    return true, "Exclusion removed: " .. value
+end
+
 function module:Initialize()
     if type(FC.db.buffExclusions) ~= "table" then FC.db.buffExclusions = {["cantation of manifestation"] = "Cantation of Manifestation"} end
     FC:RegisterTool({name = "Buff Thanks", settingsPage = "buffThanks",

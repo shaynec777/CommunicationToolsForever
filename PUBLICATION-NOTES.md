@@ -1,7 +1,7 @@
 # Shared edition versioning
 
-Forever and Classic now share the CommunicationTools version sequence, starting at 0.10.6. Addon folders, client compatibility and saved settings remain separate. Both retain beta status.
+Forever and Classic share version 0.10.7 beta. Their addon folders, client compatibility and saved settings remain separate.
 
-Published November 6, 2026: GitHub tags v0.10.6 and classic-v0.10.6 at 5cb19d9. Uploaded asset digests verified. CurseForge project 1756399 accepted file 9472396; project 1760136 accepted file 9472397, automatic publication after approval. Both are pending approval at last public check. Website description versions must match approved downloads, so public description updates are deferred until approval. Prepared DESCRIPTION.md files target 0.10.6.
+Prepared November 15, 2026: eight-tool update including Filter Chat, Filter Guild, Friends List, guild scans/imports, scrolling editors, compact menu and 80% opaque rounded windows. Both editions passed Lua 5.1 regression and package checks. Classic preserves Name-Realm addressing and combat-log buff detection. Release notes distinguish Forever in-game confirmations from remaining beta checks.
 
-Lua 5.1 syntax, TOC references, ZIP CRC and source/archive equality passed. Seven suites passed; tests/test_addon.lua fails its accented-name assertion in this runtime. Only version metadata and documentation changed.
+CurseForge projects: Forever 1756399; Classic 1760136. GitHub release tags: v0.10.7 and classic-v0.10.7. Website descriptions and guides cover the new features at the same version.

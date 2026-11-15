@@ -1,24 +1,17 @@
-# CommunicationTools Classic 0.10.6 beta
+# CommunicationTools Classic 0.10.7 beta
 
 ## New in this update
 
-- Align Forever and Classic on version 0.10.6. Both editions now share a version sequence while keeping their own addon folders and saved settings.
+- Add Filter Chat with saved keywords/phrases and independent chat-type switches.
+- Add Filter Guild with per-entry Exact/Partial matching, click-driven /who scans, visible progress and cooldown controls, persistent learned members, clickable guild blacklists, and member exceptions.
+- Add optional roster imports on a dedicated page with website copy/paste instructions and a direct blacklist button. Accept names and copied tables; importing activates the roster and guild filter.
+- Add Friends List for available request approval/decline, friend removal, and local mute/unmute.
+- Use scrolling Add/Enter list editors with individual delete buttons and retained typing focus.
+- Fit all eight tools on the main menu; use rounded window borders with 80% background opacity.
+- Credit Nefas Aeternum for help testing, alongside Fenty Od, Proba Croisus and Garok Shrike.
 
-## Fixes and refinements
+## Compatibility and validation
 
-- Includes typing-safe automatic buff thanks: queued whispers wait while a chat or conversation reply box has focus. Stale queued requests are cancelled when the queue is cleared.
-- No new gameplay changes in this synchronization release. Existing features and settings are retained; broader combat testing is still welcome.
+Guild scans send one /who query per click and observe the client cooldown. Large results require further clicks; offline characters require saved observations or optional roster imports. Character whisper conversations remain separate from Battle.net account chat.
 
-# CommunicationTools Classic 0.10.5 beta
-
-First public Classic Era release with five tools: Buff Thanks, Whisper Conversations, Extended Ignore, Do Not Disturb, and Name Alerts.
-
-- Classic Name-Realm addressing with short character names in thank-you text.
-- Combat-log buff detection, two-second delay, startup suppression, repeat cooldowns, optional message labels, and effect exclusions.
-- Defer automatic buff whispers while typing without changing the draft.
-- Tabbed or separate whisper windows, saved history, unread counts, deletion, saved positions, detached tiling, and opaque detached backgrounds.
-- Independent Classic settings/history and addon folder.
-
-Lua 5.1 tests cover startup, settings, realm identity, DND targets, buff-event filtering and typing-safe delivery. Buff thanks and whisper windows have in-game Classic confirmation; typing deferral has Forever in-game confirmation and Classic regression coverage. Broader Classic combat testing remains welcome.
-
-Thanks to Fenty Od, Proba Croisus and Garok Shrike. MIT licensed.
+Both editions passed their Lua 5.1 regression and package checks. In-game Forever checks confirmed word filters, guild scans/filtering, partial rules, guild removal, imported blacklist visibility, member exceptions, and declining a friend request. Other friend actions and wider Classic gameplay checks remain open for beta feedback.

@@ -79,69 +79,19 @@ local events = {
 function FC:BuildExtendedIgnoreSettings(panel, top, text)
     local replyTop = top
     top = top - 280
-    text("Extended Ignore: blacklist", "GameFontNormal", 20, top)
-    text("Ctrl+Shift+left-click a character name in chat to add it. Or enter Name-Realm below; a name alone uses your current realm.",
-        "GameFontHighlightSmall", 20, top - 24, 440)
-    local input = CreateFrame("EditBox", nil, panel, "InputBoxTemplate")
-    input:SetSize(284, 30)
-    input:SetPoint("TOPLEFT", panel, "TOPLEFT", 24, top - 72)
-    input:SetAutoFocus(false)
-    input:SetMaxBytes(160)
-    local add = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
-    add:SetSize(120, 26)
-    add:SetPoint("LEFT", input, "RIGHT", 12, 0)
-    add:SetText("Add to blacklist")
-    local feedback = text("", "GameFontHighlightSmall", 20, top - 112, 440)
-    local function addName()
-        local success, message = FC:AddBlacklistName(input:GetText())
-        if success then input:SetText(""); input:ClearFocus() end
-        feedback:SetText(message)
-    end
-    add:SetScript("OnClick", addName)
-    input:SetScript("OnEnterPressed", addName)
-    input:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
-    local count = text("", "GameFontNormal", 20, top - 160, 440)
-    local rows, page, pageSize = {}, 1, 8
-    for index = 1, pageSize do
-        local label = text("", "GameFontHighlightSmall", 24, top - 190 - (index - 1) * 30, 300)
-        local remove = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
-        remove:SetSize(100, 24)
-        remove:SetPoint("TOPLEFT", panel, "TOPLEFT", 340, top - 184 - (index - 1) * 30)
-        remove:SetText("Remove")
-        local row = { label = label, remove = remove }
-        rows[index] = row
-        remove:SetScript("OnClick", function()
-            if row.name then
-                local _, message = FC:RemoveBlacklistName(row.name)
-                feedback:SetText(message)
-            end
-        end)
-    end
-    local previous = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
-    previous:SetSize(100, 26)
-    previous:SetPoint("TOPLEFT", panel, "TOPLEFT", 20, top - 440)
-    previous:SetText("Previous")
-    local nextPage = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
-    nextPage:SetSize(100, 26)
-    nextPage:SetPoint("LEFT", previous, "RIGHT", 12, 0)
-    nextPage:SetText("Next")
-    function FC:RefreshBlacklist()
-        local names = {}
-        for _, name in pairs(self.db.extendedIgnore.blacklist) do names[#names + 1] = name end
-        table.sort(names)
-        local pages = math.max(1, math.ceil(#names / pageSize))
-        page = math.max(1, math.min(page, pages))
-        count:SetText(#names .. " blacklisted | Page " .. page .. " of " .. pages)
-        for index, row in ipairs(rows) do
-            row.name = names[(page - 1) * pageSize + index]
-            row.label:SetText(row.name or (index == 1 and #names == 0 and "Your blacklist is empty." or ""))
-            row.remove:SetShown(row.name ~= nil)
-        end
-        previous:SetEnabled(page > 1)
-        nextPage:SetEnabled(page < pages)
-    end
-    previous:SetScript("OnClick", function() page = page - 1; FC:RefreshBlacklist() end)
-    nextPage:SetScript("OnClick", function() page = page + 1; FC:RefreshBlacklist() end)
+    local editor = self:CreateEntryEditor(panel, text, {
+        top = top, caption = "Players to ignore", addLabel = "Add player", maxBytes = 160,
+        help = "Enter a full character name. A name without a realm uses this realm. Ctrl+Shift+left-click a chat name also adds it. Enter keeps focus; \195\151 deletes. Changes save immediately.",
+        GetEntries = function()
+            local names = {}
+            for _, name in pairs(FC.db.extendedIgnore.blacklist) do names[#names + 1] = name end
+            table.sort(names); return names
+        end,
+        Add = function(value) return FC:AddBlacklistName(value) end,
+        Remove = function(value) return FC:RemoveBlacklistName(value) end,
+    })
+    self.ignoreListEditor = editor
+    function FC:RefreshBlacklist() editor.Refresh() end
     text("The list is saved account-wide. Disabling Extended Ignore keeps your list. This filters new character chat locally; it does not change Blizzard's ignore list or remove earlier messages.",
         "GameFontHighlightSmall", 20, top - 484, 440)
     local notify = CreateFrame("CheckButton", "CommunicationToolsClassicIgnoreReplyToggle", panel, "UICheckButtonTemplate")

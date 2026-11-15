@@ -2,6 +2,9 @@ local frames, filters, callbacks = {}, {}, {}
 local ctrl, shift = false, false
 local secret = {}
 local methods = {}
+function methods:RegisterEvent(event)
+    assert(event ~= "UNIT_GUILD_UPDATE", "Forever rejects the unsupported UNIT_GUILD_UPDATE event")
+end
 function methods:SetScript(event, callback) self.scripts[event] = callback end
 function methods:HookScript(event, callback)
     local previous = self.scripts[event]
@@ -30,6 +33,7 @@ local function frame(kind, name, parent)
     return obj
 end
 function methods:CreateFontString() return frame("FontString") end
+function methods:GetThumbTexture() return frame("Texture") end
 function methods:CreateTexture() return frame("Texture") end
 CreateFrame = frame
 UIParent = { GetWidth = function() return 1920 end, GetHeight = function() return 1080 end }
@@ -66,13 +70,13 @@ hooksecurefunc = function(name, callback) hooks[name] = callback end
 FCF_OpenNewWindow = function() end
 FCF_OpenTemporaryWindow = function() end
 local FC = {}
-for _, file in ipairs({"Core.lua", "BuffThanks.lua", "ExtendedIgnore.lua", "DoNotDisturb.lua", "NameAlerts.lua", "WhisperConversations.lua", "Settings.lua", "ChatAccess.lua"}) do
+for _, file in ipairs({"Core.lua", "BuffThanks.lua", "ExtendedIgnore.lua", "DoNotDisturb.lua", "NameAlerts.lua", "WhisperConversations.lua", "FilterChat.lua", "FilterGuild.lua", "FriendsList.lua", "Settings.lua", "ChatAccess.lua"}) do
     assert(loadfile("CommunicationToolsForever/" .. file))("CommunicationToolsForever", FC)
 end
 for _, f in ipairs(frames) do
     if f.scripts.OnEvent then f.scripts.OnEvent(f, "ADDON_LOADED", "CommunicationToolsForever") end
 end
-assert(#FC.tools == 5, "All tools initialize before settings")
+assert(#FC.tools == 8, "All tools initialize before settings")
 assert(FC.db.extendedIgnore.enabled)
 assert(FC:AddBlacklistName("  Alice  "))
 assert(FC:IsBlacklisted("ALICE-Home Realm"), "Case and realm whitespace normalization")
@@ -81,7 +85,7 @@ assert(not FC:IsBlacklisted("Alice-OtherRealm"), "Do not block same name on anot
 assert(not FC:AddBlacklistName("Alice-HomeRealm"), "Duplicate add")
 assert(FC:AddBlacklistName("Bob-Other Realm"))
 for event, filter in pairs(filters) do
-    assert(filter({}, event, "message", "Bob-OtherRealm") == true, event .. " filters blocked author")
+    assert(filter({}, event, "message", "Bob-OtherRealm") == (event ~= "CHAT_MSG_BN_WHISPER"), event .. " filters blocked author where character ignore applies")
     assert(filter({}, event, "message", "Unknown-OtherRealm") == false, event .. " passes other author")
     assert(filter({}, event, "message", secret) == false, event .. " skips secret author")
 end
@@ -129,12 +133,7 @@ FC.modules[2]:Initialize()
 assert(FC:IsBlacklisted("Charlie-OtherRealm"), "Persisted names survive initialization")
 assert(not FC.db.extendedIgnore.blacklist.invalid)
 -- Exercise the settings editor's Add button and a visible Remove button.
-local input, add, remove
-for _, f in ipairs(frames) do
-    if f.kind == "EditBox" and f.parent == FC.settingsPages.extendedIgnore.content and not input then input = f end
-    if f.text == "Add to blacklist" then add = f end
-    if f.text == "Remove" and not remove then remove = f end
-end
+local input, add, remove = FC.ignoreListEditor.input, FC.ignoreListEditor.add, FC.ignoreListEditor.rows[1].remove
 input:SetText("Editorname")
 add.scripts.OnClick(add)
 assert(FC:IsBlacklisted("Editorname"), "Settings editor adds character")
@@ -235,7 +234,7 @@ SlashCmdList.FOREVERCOMMUNICATIONS("")
 assert(openCount == 5, "Bare /ct opens settings")
 SlashCmdList.FOREVERCOMMUNICATIONS("status")
 assert(openCount == 5, "Explicit status does not open settings")
-assert(#FC.toolMenuControls == 5)
+assert(#FC.toolMenuControls == 8)
 local buffCard, ignoreCard = FC.toolMenuControls[1], FC.toolMenuControls[2]
 buffCard.configure.scripts.OnClick()
 assert(FC.currentSettingsPage == "buffThanks")
@@ -337,9 +336,204 @@ assert(#delivered == 1, "Clearing queue cancels deferred whispers")
 FC.IsConversationReplyFocused, C_Timer, C_ChatInfo, FC.db.channel = savedFocus, savedTimer, savedChat, savedChannel
 print("PASS: buff thanks defers while typing and cancels stale queued delivery")
 
+assert(FC:SetChatFilterKeywords("  boost\nWTS\n100%\na.b\nBOOST\n"))
+assert(#FC.db.filterChat.keywords == 4)
+assert(FC:IsChatFiltered("Selling BOOSTS today"))
+assert(FC:IsChatFiltered("100% ready"))
+assert(FC:IsChatFiltered("a.b"))
+assert(not FC:IsChatFiltered("axb"), "Keywords are literal, not Lua patterns")
+assert(not FC:IsChatFiltered(secret))
+assert(not FC:IsChatFiltered(nil))
+assert(FC:IsChatFiltered("|cff00ff00WTS|r |Hitem:123|h[Item]|h"))
+assert(not FC:IsChatFiltered("|Hitem:boost|h[Item]|h"), "Ignore hidden link identifiers")
+assert(filters.CHAT_MSG_CHANNEL({}, "CHAT_MSG_CHANNEL", "wts items", "Unknown"))
+FC.db.filterChat.enabled = false
+assert(not FC:IsChatFiltered("boost"))
+FC.db.filterChat.enabled = true
+assert(not FC:SetChatFilterKeywords("|Hbad"))
+assert(FC:IsChatFiltered("boost"), "Invalid save preserves list")
+FC.db.filterChat.scopes.guild = false
+assert(not FC:IsChatFiltered("boost", "CHAT_MSG_GUILD"))
+assert(FC:IsChatFiltered("boost", "CHAT_MSG_CHANNEL", 2))
+FC.db.filterChat.scopes.trade = false
+assert(not FC:IsChatFiltered("boost", "CHAT_MSG_CHANNEL", 2))
+assert(FC:IsChatFiltered("boost", "CHAT_MSG_CHANNEL", 1))
+FC.db.filterChat.scopes.guild, FC.db.filterChat.scopes.trade = true, true
+assert(FC:SetGuildFilterNames(" Bad Guild\nBAD GUILD\nOther Guild"))
+assert(#FC.db.filterGuild.guilds == 2)
+local originalGUID, originalGuild, originalToken = UnitGUID, GetGuildInfo, UnitTokenFromGUID
+UnitGUID = function(unit) return unit == "target" and "Player-123" or nil end
+GetGuildInfo = function() return "Bad Guild" end
+UnitTokenFromGUID = function(guid) return guid == "Player-123" and "target" or nil end
+assert(FC:IsGuildFiltered("Somebody", "Player-123"))
+assert(filters.CHAT_MSG_CHANNEL({}, "CHAT_MSG_CHANNEL", "hello", "Somebody", nil, nil, nil, nil, 2, 2, "Trade", nil, 1, "Player-123"), "Guild filter receives sender GUID")
+local oldClock = GetTime
+GetTime = function() return 401 end
+UnitTokenFromGUID = function() return nil end
+assert(FC:IsGuildFiltered("Somebody", "Player-123"), "Learned membership does not expire after five minutes")
+GetTime = oldClock
+UnitTokenFromGUID = function() return "target" end
+assert(FC:IsGuildFiltered("Somebody", "Player-123"))
+GetGuildInfo = function() error("unavailable") end
+assert(FC:IsGuildFiltered("Somebody", "Player-123"), "Temporary failure retains recent sighting")
+GetGuildInfo = function() return "Bad Guild" end
+FC.db.filterGuild.enabled = false
+assert(not FC:IsGuildFiltered("Somebody", "Player-123"))
+FC.db.filterGuild.enabled = true
+
+assert(not FC:IsGuildFiltered("Unknown", "Player-999"))
+assert(not FC:IsGuildFiltered("Secret", secret))
+UnitTokenFromGUID = function() return nil end
+assert(FC:IsGuildFiltered("Somebody", "Player-123"), "Recent sightings are cached")
+UnitTokenFromGUID = function() return "target" end
+GetGuildInfo = function() return nil end
+assert(not FC:IsGuildFiltered("Somebody", "Player-123"), "Guildless observation clears membership")
+GetGuildInfo = function() return "Bad Guild Extra" end
+assert(not FC:IsGuildFiltered("Somebody", "Player-123"), "Full guild names match exactly")
+UnitGUID, GetGuildInfo, UnitTokenFromGUID = originalGUID, originalGuild, originalToken
+assert(not FC.db.filterGuild.useImports, "Imports are off by default")
+assert(FC:ImportGuildRoster("Bad Guild", "Alice Raven\nALICE RAVEN\nBob Stone"))
+assert(FC.db.filterGuild.imports["bad guild"].count == 2)
+assert(not FC:IsGuildFiltered("Alice Raven", nil))
+FC.db.filterGuild.useImports = true
+assert(FC:IsGuildFiltered("Alice Raven", nil), "Optional import identifies unavailable senders")
+assert(not FC:IsGuildFiltered("Alice Raven-OtherRealm", nil), "Imported identity remains realm-qualified")
+assert(not FC:IsGuildFiltered(secret, nil))
+assert(not FC:IsGuildFiltered("Alice Raven", secret))
+assert(not FC:ImportGuildRoster("Bad Guild", "Alice Raven\n|Hbad"))
+assert(FC:IsGuildFiltered("Alice Raven", nil), "Invalid replacement is atomic")
+assert(FC:ImportGuildRoster("Unlisted Guild", "Unknown Person"))
+assert(not FC:IsGuildFiltered("Unknown Person", nil), "Imports do not add guilds to blacklist")
+assert(FC:ImportGuildRoster("Activated Guild", "Imported Tester", true))
+assert(FC.db.filterGuild.useImports and FC:GuildNameMatchesFilter("Activated Guild"))
+assert(FC:IsGuildFiltered("Imported Tester", nil), "UI imports activate guild and roster")
+local importedVisible = false
+for _, group in ipairs(FC:GetGuildMemberBlacklists()) do
+    if group.guild == "Activated Guild" and #group.members == 1 then importedVisible = true end
+end
+assert(importedVisible, "Activated import appears in guild blacklists")
+assert(FC:RemoveGuildFilterName("Activated Guild"))
+assert(FC:ImportGuildRoster("Bad Guild", "New Member"))
+assert(not FC:IsGuildFiltered("Alice Raven", nil), "Replacing removes departed members")
+assert(FC:IsGuildFiltered("New Member", nil))
+UnitGUID = function() return "Player-123" end
+GetGuildInfo = function() return "Allowed Guild" end
+UnitTokenFromGUID = function() return "target" end
+assert(not FC:IsGuildFiltered("New Member", "Player-123"), "Current membership overrides stale import")
+UnitGUID, GetGuildInfo, UnitTokenFromGUID = originalGUID, originalGuild, originalToken
+assert(FC:RemoveImportedGuildRoster("Bad Guild"))
+assert(not FC:IsGuildFiltered("New Member", nil))
+assert(not FC:RemoveImportedGuildRoster("Missing Guild"))
+local reloaded = {modules = {}, db = FC.db, IsPublic = FC.IsPublic, NormalizeBlacklistName = FC.NormalizeBlacklistName, RegisterTool = function() end, Print = function() end}
+FC.db.filterGuild.learned.invalid = {guild = "Bad Guild"}
+FC.db.filterGuild.learned["Player-Broken"] = {guild = false}
+assert(loadfile("CommunicationToolsForever/FilterGuild.lua"))("CommunicationToolsForever", reloaded)
+reloaded.modules[1]:Initialize()
+UnitTokenFromGUID = function() return nil end
+assert(reloaded.db.filterGuild.learned["Player-123"], "Learned membership survives addon reinitialization")
+assert(not reloaded.db.filterGuild.learned.invalid and not reloaded.db.filterGuild.learned["Player-Broken"], "Invalid saved observations are dropped")
+assert(not reloaded:IsGuildFiltered("Somebody", "Player-123"), "Observed different guild persists across sessions")
+reloaded.db.filterGuild.learned["Player-456"] = {guild = "Bad Guild"}
+assert(reloaded:IsGuildFiltered("Remembered Player", "Player-456"), "Persisted member filters without a visible unit")
+reloaded:ForgetLearnedGuilds()
+assert(not reloaded:IsGuildFiltered("Remembered Player", "Player-456"))
+UnitTokenFromGUID = originalToken
+print("PASS: learned guild membership persistence, saved-data validation, guild changes and manual reset")
+print("PASS: optional guild imports, deduplication, validation, replacements, removal and live membership precedence")
+FC.toolMenuControls[7].configure.scripts.OnClick()
+assert(FC.currentSettingsPage == "filterGuild")
+print("PASS: channel scopes and guild blacklist identity, recent sightings and membership changes")
+assert(FC:SetChatFilterKeywords(""))
+assert(not FC:IsChatFiltered("boost"))
+FC.toolMenuControls[6].configure.scripts.OnClick()
+assert(FC.currentSettingsPage == "filterChat")
+print("PASS: Filter Chat settings, literal case-insensitive matching, links, restricted values and enable toggle")
+
+local filterInput, addTerm, termScrollbar = FC.chatFilterEditor.input, FC.chatFilterEditor.add, FC.chatFilterEditor.scrollbar
+local deleteTerms = {}
+for _, row in ipairs(FC.chatFilterEditor.rows) do deleteTerms[#deleteTerms + 1] = row.remove end
+assert(filterInput and addTerm and termScrollbar and #deleteTerms == 6)
+filterInput:SetText("  Example phrase  ")
+addTerm.scripts.OnClick()
+assert(FC.db.filterChat.keywords[1] == "Example phrase" and filterInput:GetText() == "", "Add saves and clears input")
+assert(not FC:AddChatFilterKeyword("EXAMPLE PHRASE"), "Duplicate terms ignore capitalization")
+assert(not FC:AddChatFilterKeyword(" ") and not FC:AddChatFilterKeyword(secret))
+assert(not FC:AddChatFilterKeyword("one\ntwo"), "Add one term at a time")
+assert(not FC:AddChatFilterKeyword(string.rep("a", 4000)), "Total keyword budget is enforced atomically")
+assert(#FC.db.filterChat.keywords == 1)
+for i = 1, 6 do assert(FC:AddChatFilterKeyword("Term " .. i)) end
+termScrollbar.scripts.OnValueChanged(termScrollbar, 1)
+deleteTerms[6].scripts.OnClick()
+assert(#FC.db.filterChat.keywords == 6 and not FC:IsChatFiltered("Term 6"), "Delete last visible term and clamp scroll offset")
+deleteTerms[1].scripts.OnClick()
+assert(#FC.db.filterChat.keywords == 5 and not FC:IsChatFiltered("Example phrase"), "Row deletion saves immediately")
+assert(FC:RemoveChatFilterKeyword("TERM 1"))
+assert(not FC:RemoveChatFilterKeyword("missing"))
+assert(FC:SetChatFilterKeywords(""))
+FC:RefreshFilterChatSettings()
+print("PASS: term input Add/Enter controls, duplicate/size validation, scrollable row deletion and saved list preservation")
+assert(FC.guildFilterEditor.rows[1].scan and FC.guildFilterEditor.rows[1].scan.scripts.OnClick, "Each guild row has a Scan action")
+assert(not FC:IsGuildFilterPartial("Olympus"), "Guild names match exactly by default")
+assert(FC:SetGuildFilterNames("Olympus"))
+assert(FC:GuildNameMatchesFilter("OLYMPUS"))
+assert(not FC:GuildNameMatchesFilter("Olympus IX"))
+assert(FC:SetGuildFilterPartial("Olympus", true))
+for _, name in ipairs({"OLYMPUS IX", "Olympus II", "New Olympus"}) do assert(FC:GuildNameMatchesFilter(name)) end
+assert(not FC:GuildNameMatchesFilter("Other Guild") and not FC:GuildNameMatchesFilter(secret))
+assert(FC:AddGuildFilterName("a.b"))
+assert(FC:SetGuildFilterPartial("a.b", true))
+assert(not FC:AddGuildFilterName("A.B"))
+assert(FC:GuildNameMatchesFilter("a.b Guild") and not FC:GuildNameMatchesFilter("axb Guild"), "Partial guild matches are literal")
+assert(FC:ImportGuildRoster("Olympus IX", "Imported Member"))
+FC.db.filterGuild.useImports = true
+assert(FC:IsGuildFiltered("Imported Member", nil), "Partial names apply to imported rosters")
+assert(FC:RemoveGuildFilterName("Olympus"))
+assert(not FC:IsGuildFiltered("Imported Member", nil))
+FC.guildFilterEditor.input:SetText("Olympus")
+FC.guildFilterEditor.input.scripts.OnEnterPressed()
+FC.guildFilterEditor.rows[2].mode.scripts.OnClick()
+assert(FC:GuildNameMatchesFilter("Olympus II") and FC.guildFilterEditor.input:GetText() == "")
+FC.guildFilterEditor.rows[2].remove.scripts.OnClick()
+assert(not FC:GuildNameMatchesFilter("Olympus II"))
+FC.buffExclusionEditor.input:SetText("Example Buff")
+FC.buffExclusionEditor.input.scripts.OnEnterPressed()
+assert(FC.db.buffExclusions["example buff"] == "Example Buff")
+assert(not FC:AddBuffExclusion("EXAMPLE BUFF"))
+FC.buffExclusionEditor.rows[1].remove.scripts.OnClick()
+assert(not FC.db.buffExclusions["example buff"])
+print("PASS: shared add/delete editors, exact/partial literal guild matches including Olympus variants and imported rosters")
+FC.toolMenuControls[8].configure.scripts.OnClick()
+assert(FC.currentSettingsPage == "friendsList" and FC.settingsPages.friendsList.root.shown)
+assert(FC:SetGuildFilterNames("Directory Guild"))
+assert(FC:AddGuildBlacklistMember("Directory Guild", "Example Member"))
+FC:ShowSettingsPage("guildMembers")
+local directoryButton = FC.guildDirectoryButtons[1]
+assert(directoryButton.guildName == "Directory Guild" and directoryButton.scan and directoryButton.scan.scripts.OnClick)
+directoryButton.scripts.OnClick(directoryButton)
+assert(FC.currentSettingsPage == "guildRoster" and FC.selectedGuildBlacklist == "Directory Guild")
+FC.guildMembersEditor.rows[1].remove.scripts.OnClick()
+assert(not FC:IsGuildFiltered("Example Member", nil))
+FC:ShowSettingsPage("guildMembers")
+assert(FC.guildDirectoryButtons[1].guildName == "Directory Guild", "Keep empty guild accessible for restore")
+directoryButton.remove.scripts.OnClick()
+assert(#FC:GetGuildMemberDirectory() == 0 and #FC.db.filterGuild.guilds == 0, "Directory x removes exact guild and member data")
+FC:RestoreRemovedGuilds()
+assert(FC:GuildNameMatchesFilter("Directory Guild"))
+print("PASS: clickable guild directory opens selected blacklist and preserves member removal")
+local importPageButton, rosterImportButton
+for _, f in ipairs(frames) do
+    if f.text == "Import guild roster" and f.parent == FC.settingsPages.filterGuild.content then importPageButton = f end
+    if f.text == "Import / replace roster" then rosterImportButton = f end
+end
+assert(importPageButton and rosterImportButton.parent == FC.settingsPages.guildImport.content)
+importPageButton.scripts.OnClick()
+assert(FC.currentSettingsPage == "guildImport" and FC.settingsPages.guildImport.root.shown)
+assert(not FC.settingsPages.filterGuild.root.shown)
+print("PASS: visible Guild Import navigation opens separate roster import page")
+dofile("tests/test_guild_scan.lua")
+dofile("tests/test_friends_list.lua")
 dofile("tests/test_buff_startup.lua")
 dofile("tests/test_dnd.lua")
 dofile("tests/test_ignore_reply.lua")
 dofile("tests/test_name_alerts.lua")
 dofile("tests/test_whisper_conversations.lua")
-

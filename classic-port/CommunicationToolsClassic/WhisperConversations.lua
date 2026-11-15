@@ -166,8 +166,7 @@ local function windowFor(key)
     w:SetScript("OnDragStop", function(self) self:StopMovingOrSizing(); FC:SaveWhisperWindowPosition(key, self) end)
     w:SetResizable(true)
     if w.SetResizeBounds then w:SetResizeBounds(key and 320 or 500, 260, 1100, 800) end
-    w:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", edgeSize = 24})
-    w:SetBackdropColor(0.035, 0.047, 0.044, key and 1 or 0.55)
+    FC:StyleWindow(w)
     w.title = label(w, "Whisper Conversations", 20, -16, key and 250 or 430)
     local close = CreateFrame("Button", nil, w, "UIPanelCloseButton")
     close:SetPoint("TOPRIGHT", -4, -4)
@@ -355,7 +354,10 @@ local function prune(protectedKey)
         end
     end
 end
-function FC:RecordConversationWhisper(event, message, author, flags)
+function FC:RecordConversationWhisper(event, message, author, flags, guid)
+    if event == "CHAT_MSG_WHISPER" and self.IsFriendMuted and self:IsFriendMuted(author, guid) then return end
+    if event == "CHAT_MSG_WHISPER" and self.IsChatFiltered and self:IsChatFiltered(message, event) then return end
+    if event == "CHAT_MSG_WHISPER" and self.IsGuildFiltered and self:IsGuildFiltered(author, guid) then return end
     if not settings.enabled or not self:IsPublic(message) or not self:IsPublic(author) or not self:IsPublic(flags)
         or type(message) ~= "string" or type(author) ~= "string" or flags == "GM" or self:IsBlacklisted(author) then return end
     local key, name = nameOf(author)
@@ -459,7 +461,7 @@ function module:Initialize()
     local listener = CreateFrame("Frame")
     listener:RegisterEvent("CHAT_MSG_WHISPER")
     listener:RegisterEvent("CHAT_MSG_WHISPER_INFORM")
-    listener:SetScript("OnEvent", function(_, event, message, author, _, _, _, flags)
-        FC:RecordConversationWhisper(event, message, author, flags)
+    listener:SetScript("OnEvent", function(_, event, message, author, _, _, _, flags, channelID, channelIndex, channelBase, languageID, lineID, guid)
+        FC:RecordConversationWhisper(event, message, author, flags, guid)
     end)
 end

@@ -36,7 +36,9 @@ local function fixture(saved)
     end}
     local secret = {}
     local FC = {modules = {}, db = saved or {}, tools = {}}
-    function FC:IsPublic(v) return v ~= secret end
+    -- Core supplies the shared window presentation in-game.
+function FC:StyleWindow() end
+function FC:IsPublic(v) return v ~= secret end
     function FC:NormalizeBlacklistName(name)
         if type(name) ~= "string" then return end
         name = name:match("^([^%-]+)")

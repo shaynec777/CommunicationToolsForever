@@ -3,6 +3,8 @@ local secret, clock, soundCount, notices, listener = {}, 100, 0, {}, nil
 local timers, first, surname = {}, "Ann", "Raven"
 local combat = false
 InCombatLockdown = function() return combat end
+-- Core supplies the shared window presentation in-game.
+function FC:StyleWindow() end
 function FC:IsPublic(value) return value ~= secret end
 function FC:RegisterTool() end
 function FC:Print(message) notices[#notices + 1] = message end

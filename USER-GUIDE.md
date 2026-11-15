@@ -117,7 +117,7 @@ Tools register their name, description, `IsEnabled` getter and `SetEnabled` call
 
 ## Acknowledgements
 
-Thanks to **Fenty Od** for help with testing and ideas, **Proba Croisus** for help with testing, and **Garok Shrike** for suggestions.
+Thanks to **Fenty Od** for help with testing and ideas, **Proba Croisus** and **Nefas Aeternum** for help with testing, and **Garok Shrike** for suggestions.
 
 ## Logo
 
@@ -130,4 +130,60 @@ Open `/ct`, enable **Whisper Conversations**, and choose **Configure**. Choose a
 
 History persists in the existing account-wide saved variables across reloads/logouts, with 50, 100 (default), 250, or 500 messages per person and up to 40 recent people. The settings page includes a two-click **Clear all saved history** control. Normal chat whispers remain visible. Extended Ignore excludes blocked senders; DND hide suppresses automatic display. Combat suppression (enabled by default) records messages without opening windows. Disabling the tool hides its windows and pauses recording. Character whispers only; Battle.net conversations are not supported.
 
-Buff Thanks settings include **Excluded buffs**, one exact localized buff name per line (case-insensitive). Click **Save excluded buffs** to apply. Cantation of Manifestation is excluded by default; delete it from the list to allow it again. Whisper windows default to compact sizes with 55% background opacity and remain resizable.
+Buff Thanks settings include **Buffs excluded from thanks**. Enter one exact localized buff name and click **Add buff** or press Enter. Browse with the scrollbar or mouse wheel and use **×** to remove entries. Changes save immediately. Cantation of Manifestation is excluded by default; delete it from the list to allow it again. Whisper windows default to compact sizes with 80% background opacity and remain resizable.
+
+## Filter Chat
+
+Open `/ct`, choose **Filter Chat > Configure**, and enter a word or phrase in **Words to trigger filter**. Click **Add term** or press Enter. Your terms appear below with an **×** button beside each one to delete it. Use the mouse wheel, scrollbar, or arrow buttons to browse longer lists. Adds and deletions save immediately; an empty list allows all messages. The tool card's **Enabled** checkbox pauses filtering while keeping your list.
+
+Matches ignore capitalization and include parts of longer words: `boost` also matches `boosting`. Entries are literal text, so punctuation does not act as a pattern. Select which chats to filter using the channel checkboxes. Trade has its own checkbox; for example, enable Trade and disable Guild and officer to allow the same words in guild chat. Channel selections also save immediately. Incoming messages in selected chats containing any entry are hidden. Matching whispers are excluded from new Whisper Conversations history, Name Alerts, and DND replies or forwarding. Previously saved history stays available. Settings persist account-wide.
+
+## Filter Guild
+
+Open `/ct` and choose **Filter Guild > Configure**. Enter a guild name and click **Add guild** or press Enter. Choose **Exact / Partial** beside it, then click **Scan beside that guild entry** to find its online members. The top Scan button advances the full-list queue. Wait for results and at least five seconds between Scan clicks; continue until the scan reports complete. Browse the scrollable list and use **×** to delete entries; changes save immediately. Messages from identified members of those guilds are hidden across incoming player chat, including new Whisper Conversations messages and Name Alerts. DND replies and forwarding also skip them. Names match exactly by default, ignoring capitalization. Click **Exact / Partial** beside an individual guild entry to choose its matching mode. **Partial** matches literal parts: `Olympus` matches `OLYMPUS IX`, `Olympus II`, and `New Olympus`. This also applies to imported guild rosters. Delete an entry to allow its members again, or pause the tool using its Enabled checkbox.
+
+Membership is learned from players the client exposes, including targets, mouseovers, nameplates and group members, and saved account-wide between sessions without a five-minute expiry. Later observations update the saved guild, including when a character leaves a guild. Until then, the last observed membership is used. **Forget learned guilds** clears this learned data without removing your blacklist or imports. Unknown senders remain visible. WoW does not provide a complete membership roster for arbitrary guilds through this feature.
+
+### Optional Guild Import
+
+Automatic guild detection works without imports. To supplement it, open **Filter Guild > Import guild roster**, enter the full guild name, and paste one full character name per line, including surnames. Copy names from a guild roster website or an external roster tool if you choose; copy character names or supported roster table rows, and use your own region's roster. Click **Import / replace roster** to enable imported rosters and activate filtering for this guild. Open **View guild blacklists** to see its members.
+
+Imported rosters persist account-wide and identify listed senders even when they are not nearby. They are snapshots, not automatic web downloads. Re-import the same guild to replace its old roster as membership changes, or enter its name and click **Remove this guild's import**. Recent in-game guild information overrides imported membership. Up to 1,000 unique character names are accepted per guild. Turning off imported rosters keeps the saved imports and leaves automatic detection active.
+
+## Friends List
+
+Open `/ct` and choose **Friends List > Configure**. Pending requests show their type (WoW-only, BattleTag, or Real ID). **Approve** accepts the selected request and **Decline** rejects it. Approving a Real ID request shares your real name through Battle.net. Existing friends appear below the requests; use Previous/Next to browse either list. **Refresh** reads the current client lists.
+
+**Remove** changes your actual WoW or Battle.net friend list. Click **Confirm remove** on the same friend to complete removal. **Mute** hides incoming player chat and whispers locally while preserving the friendship; **Unmute** allows messages again. CT Name Alerts, new Whisper Conversations history, and DND replies/forwarding also skip muted senders. Battle.net whispers are filtered by account identity, and other player chat is filtered when the client identifies the account or character. This does not change Battle.net blocking, voice chat, or messages in other applications.
+
+Mutes are saved when a stable BattleTag, character GUID, or character name is available. Entries marked **session mute** last for the current login. **Clear all mutes** resets local friend mutes; disabling Friends List pauses them. Requests and removals are sent only when you click their controls.
+
+Ignored players use the same add-box and scrollable list: choose **Extended Ignore**, use **Add player** or Enter, and **×** to delete. The cursor stays in each list input after adding an entry.
+
+### Scan online guild members
+
+Open **Filter Guild**, enter a guild name, and choose Exact or Partial beside it. Click **Scan beside that entry** to search only that guild; further clicks on the same button continue its level ranges. The **Scan** button at the top instead advances the queue across all entries. Each click sends one `/who` search. Wait for the result and at least five seconds before clicking again. An entry set to Partial, such as `Olympus`, searches for that term and checks the actual returned guild names, keeping `Olympus IX` and `Olympus II` as separate guilds. Exact mode saves only exact guild matches. When results are capped, further clicks search smaller level ranges. Offline players and results beyond the client's limits cannot be discovered by a scan.
+
+Found full character names and actual guild names are saved between sessions without requiring imports. Avoid running another `/who` search while waiting for a scan result. A timeout lets you retry the same search; no searches are sent automatically from timers or result events.
+
+### View and edit each guild's member blacklist
+
+Click **View guild blacklists** on Filter Guild. Click a guild in the list to open its saved members. Each guild button shows a member count; scroll the directory to see additional guilds. Use **Back to guild list** to choose another guild. The **×** beside a member allows that person through this guild filter, and that exception remains after rescanning or reloading. **Restore removed names** removes the selected guild's exceptions. Other word/player filters still apply. You can also add a full character name manually to the selected guild.
+
+Deleting a guild entry from **Guild names to filter** clears learned names, imported rosters, and member exceptions that it covered, except where another remaining filter still covers the same guild. For example, removing `Olympus` clears `Olympus II` data but preserves `Olympus IX` if that exact entry remains.
+
+### Import from a roster website
+
+1. Click **Import guild roster** at the top of Filter Guild settings, then copy the website field with Ctrl+C and open it in your browser: https://hyjal.cc/armory/guild .
+2. Choose your region. Enter the full guild name and click **Find guild**. Open its roster.
+3. Copy full names from the **Character** column, including surnames. Roster rows with tabs or spaces also work: the addon extracts the character name and skips the guild roster title and Character/Name header. Multiword races and Guild master ranks are supported. Do not copy the surrounding webpage. For a multi-page roster, paste each page on new lines into the same draft before importing.
+4. Return to the **Import guild roster** page. Enter the exact guild name in **Full guild name**, then paste into **Roster names / table rows**.
+5. Click **Import / replace roster** to enable imported rosters and activate this guild filter. Click **View guild blacklists** to see its members. An import replaces that guild's previous roster, so gather all desired pages first. Imports stay optional and need to be refreshed manually when membership changes.
+
+The **×** beside a guild in the guild directory removes that actual guild from filtering and clears its saved member lists. Other guilds matched by a broader partial rule remain filtered. Removed guilds remain exempt from passive sightings. A **Scan** can rediscover removed actual guilds only when they still match a name currently in **Guild names to filter**. Scanning never re-adds deleted filter entries; explicitly add a name again or use **Restore removed guilds** to restore those entries. Individual member exceptions still survive scans. **Restore removed guilds** enables them again; cleared member lists must be learned, scanned, or imported again. Adding the full guild name as a filter also restores that guild.
+
+When the last known guild matched by a partial rule is removed from the guild directory, that partial entry is also removed from **Guild names to filter**. **Restore removed guilds** restores the removed partial entry as well. A partial rule remains while any known matching guild is still listed.
+
+Guild scans keep the standard Who window from opening for their own responses, then restore normal Who behavior. Forever requires a fresh click or key press for each `/who` request; one click cannot run delayed searches for every guild. Each click advances the queued scan after the cooldown. Starting a separate `/who` search pauses the addon scan.
+
+The guild directory also has **Scan beside each actual guild**. It searches only that guild, even when it was found through a partial rule. Both guild pages show a prominent progress panel with searching/ready/complete state, completed and remaining search counts, members found, and a progress bar. Continue clicking the same Scan button after the cooldown when searches remain. The bar reflects the currently known workload; capped results can add narrower searches.

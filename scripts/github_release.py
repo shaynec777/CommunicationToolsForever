@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import subprocess
 import urllib.error
 import urllib.request
@@ -11,7 +12,12 @@ from pathlib import Path
 root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser()
 parser.add_argument("action", choices=("inspect", "publish"))
+parser.add_argument("--edition", choices=("Forever", "Classic"), default="Forever")
 args = parser.parse_args()
+addon_name = "CommunicationTools" + args.edition
+edition_root = root if args.edition == "Forever" else root / "classic-port"
+version = re.search(r"^## Version: (.+)$", (edition_root / addon_name / (addon_name + ".toc")).read_text(), re.M)[1]
+tag = ("v" if args.edition == "Forever" else "classic-v") + version
 os.environ.pop("SSLKEYLOGFILE", None)
 env = dict(os.environ, GIT_TERMINAL_PROMPT="0", GCM_INTERACTIVE="Never")
 credential = subprocess.run(["git", "credential", "fill"], input="protocol=https\nhost=github.com\n\n",
@@ -66,26 +72,22 @@ except subprocess.CalledProcessError:
 else:
     if existing_remote != repo["clone_url"]:
         raise SystemExit("Existing origin differs from the intended project; no push performed.")
-git("add", "--", "CommunicationToolsForever", "tests", "scripts", ".gitignore", "README.md", "USER-GUIDE.md", "DESCRIPTION.md", "LICENSE", "CHANGELOG.md", "RELEASE-NOTES.md")
-if subprocess.run(["git", "-C", str(root), "diff", "--cached", "--quiet"], env=env).returncode:
-    git("commit", "-m", "Prepare CommunicationTools Forever 0.10.4 beta publication")
 commit = git("rev-parse", "HEAD")
 git("push", "-u", "origin", "HEAD:main")
-version = "0.10.4"
 try:
-    release = call(api + f"/releases/tags/v{version}")
+    release = call(api + f"/releases/tags/{tag}")
 except urllib.error.HTTPError as error:
     if error.code != 404:
         raise
-    release = call(api + "/releases", {"tag_name": "v" + version, "target_commitish": commit,
-        "name": "CommunicationTools Forever " + version + " beta", "draft": False, "prerelease": True,
-        "body": (root / "RELEASE-NOTES.md").read_text(encoding="utf-8")})
+    release = call(api + "/releases", {"tag_name": tag, "target_commitish": commit,
+        "name": "CommunicationTools " + args.edition + " " + version + " beta", "draft": False, "prerelease": True,
+        "body": (edition_root / "RELEASE-NOTES.md").read_text(encoding="utf-8")})
 else:
-    release = call(api + f'/releases/{release["id"]}', {"body": (root / "RELEASE-NOTES.md").read_text(encoding="utf-8")}, method="PATCH")
-    reference = call(api + "/git/ref/tags/v" + version)
+    release = call(api + f'/releases/{release["id"]}', {"body": (edition_root / "RELEASE-NOTES.md").read_text(encoding="utf-8")}, method="PATCH")
+    reference = call(api + "/git/ref/tags/" + tag)
     if reference["object"]["sha"] != commit:
-        call(api + "/git/refs/tags/v" + version, {"sha": commit, "force": False}, method="PATCH")
-archive = root / "releases" / f"CommunicationToolsForever-{version}.zip"
+        call(api + "/git/refs/tags/" + tag, {"sha": commit, "force": False}, method="PATCH")
+archive = root / "releases" / f"{addon_name}-{version}.zip"
 digest = "sha256:" + hashlib.sha256(archive.read_bytes()).hexdigest()
 assets = call(api + f'/releases/{release["id"]}/assets')
 asset = next((asset for asset in assets if asset["name"] == archive.name), None)
@@ -100,5 +102,5 @@ if asset is None:
 assert asset.get("digest") == digest, "Uploaded ZIP digest differs"
 result = {"repository": repo["html_url"], "release": release["html_url"], "commit": commit,
           "asset": asset["browser_download_url"], "digest_verified": True}
-(root / "releases" / f"CommunicationToolsForever-{version}-github.json").write_text(json.dumps(result, indent=2) + "\n")
+(root / "releases" / f"{addon_name}-{version}-github.json").write_text(json.dumps(result, indent=2) + "\n")
 print(json.dumps(result, indent=2))

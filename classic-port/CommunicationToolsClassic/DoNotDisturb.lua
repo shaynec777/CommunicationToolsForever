@@ -163,7 +163,7 @@ function module:Initialize()
     frame:SetScript("OnEvent", function(_, event, message, author, _, _, _, flags, ...)
         if event ~= "CHAT_MSG_WHISPER" or not settings.enabled then return end
         if not public(message) or not public(author) or not public(flags) or type(message) ~= "string" or type(author) ~= "string" then return end
-        if flags == "GM" or FC:IsBlacklisted(author) then return end
+        if flags == "GM" or (FC.IsFriendMuted and FC:IsFriendMuted(author, select(6, ...))) or FC:IsBlacklisted(author) or (FC.IsChatFiltered and FC:IsChatFiltered(message, event)) or (FC.IsGuildFiltered and FC:IsGuildFiltered(author, select(6, ...))) then return end
         local name = characterName(author)
         if not name then return end
         local own = myName()
