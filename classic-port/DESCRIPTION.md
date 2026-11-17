@@ -1,8 +1,10 @@
+**Too much politics in your chat channels? Too many Murloc movie titles? CommunicationTools can filter those out so you'll never have to see them again!**
+
 # CommunicationTools Classic
 
-## New in this update — 0.10.7 beta
+## New in this update - 0.10.8 beta
 
-Version 0.10.7 adds Filter Chat, Filter Guild and Friends List, scrolling list editors, a compact eight-tool menu, and rounded windows with 80% opaque backgrounds. Forever and Classic share the same version number and keep separate saved settings.
+Buff Thanks now excludes Rejuvenation and Healing by default. Existing settings receive these exclusions automatically; you can adjust the list on the Buff Thanks page. Classic and Forever share version 0.10.8.
 
 A configurable communication toolbox for World of Warcraft Classic Era. Open `/ct` or right-click ordinary text or blank space in chat. Enable each tool independently from the main menu and configure it on its own settings page.
 

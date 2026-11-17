@@ -14,14 +14,17 @@ C_Timer = {After = function(delay, fn) assert(delay == 2); callbacks[#callbacks+
 CombatLogGetCurrentEventInfo = function() return unpack(log) end
 assert(loadfile("classic-port/CommunicationToolsClassic/BuffThanks.lua"))("CommunicationToolsClassic", fc)
 fc.modules[1]:Initialize()
-local function buff(kind, source, destination, aura)
- log = {0,kind,false,source or "Player-other","Bob-OtherRealm",0,0,destination or "Player-self","Me",0,0,123,"Might",1,aura or "BUFF"}
+local function buff(kind, source, destination, aura, spell)
+ log = {0,kind,false,source or "Player-other","Bob-OtherRealm",0,0,destination or "Player-self","Me",0,0,123,spell or "Might",1,aura or "BUFF"}
  frame.event(frame,"COMBAT_LOG_EVENT_UNFILTERED")
 end
 frame.event(frame,"PLAYER_ENTERING_WORLD")
 buff("SPELL_AURA_APPLIED")
 assert(#callbacks == 0)
 now = 106
+buff("SPELL_AURA_APPLIED",nil,nil,nil,"Rejuvenation")
+buff("SPELL_AURA_APPLIED",nil,nil,nil,"Healing")
+assert(#callbacks == 0, "Healing effects never schedule thanks")
 buff("SPELL_AURA_REFRESH")
 buff("SPELL_AURA_APPLIED","Player-self")
 buff("SPELL_AURA_APPLIED",nil,"Player-else")

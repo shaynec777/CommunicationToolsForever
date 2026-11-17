@@ -168,6 +168,13 @@ function module:Initialize()
     if type(FC.db.buffExclusions) ~= "table" then
         FC.db.buffExclusions = { ["cantation of manifestation"] = "Cantation of Manifestation" }
     end
+    -- Add the requested exclusions once, including for existing saved settings.
+    -- Later manual removals remain respected across reloads.
+    if not FC.db.buffHealingExclusionsAdded then
+        FC.db.buffExclusions["rejuvenation"] = "Rejuvenation"
+        FC.db.buffExclusions["healing"] = "Healing"
+        FC.db.buffHealingExclusionsAdded = true
+    end
     FC:RegisterTool({
         name = "Buff Thanks",
         settingsPage = "buffThanks",
