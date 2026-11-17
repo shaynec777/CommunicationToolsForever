@@ -7,3 +7,10 @@ Prepared November 15, 2026: eight-tool update including Filter Chat, Filter Guil
 CurseForge projects: Forever 1756399; Classic 1760136. GitHub release tags: v0.10.7 and classic-v0.10.7. Website descriptions and guides cover the new features at the same version.
 
 Publication verified November 15, 2026: GitHub source commit c21abd5 and both release ZIP digests verified. Forever CurseForge file 9632863 is publicly listed; Classic file 9632899 is Under Review with automatic publication selected. Both public descriptions and summaries show the 0.10.7 features, guild workflow and updated testing credits. Verification used the built-in browser. Screenshots are stored locally under releases/0.10.7-*-curseforge.jpg.
+
+
+# 0.10.8 publication - November 17, 2026
+
+Both editions published on GitHub at source commit 86809f3181aee78b6c3c3d5cc17c26216df8a5f9, tags v0.10.8 and classic-v0.10.8; uploaded asset digests match the verified local ZIPs. Both editions passed Lua 5.1 regression and package checks. All 33 release files installed/hash-verified on E: with backups.
+
+CurseForge Forever file 9666936: Post Processing at final browser check. Classic file 9666943: Under Review. Both are Beta and set to publish automatically after approval. No moderation approval claimed. Both project descriptions updated to 0.10.8, preserving the requested opening line. Screenshots and JSON receipts are saved locally under releases/.
