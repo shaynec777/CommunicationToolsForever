@@ -1,3 +1,9 @@
+# 0.10.9 beta - November 18, 2026
+
+- Add Thank players in instances, off by default, with checks before detecting and sending thanks and cancellation when the option changes.
+
+- Buffer up to ten distinct buff thank-you messages during combat; drain whispers after combat and typing, with half-second spacing. Keep public thanks click-to-send and cancel pending messages on clear, disable, channel change or world exit.
+
 # 0.10.8 beta - November 17, 2026
 
 - Exclude Rejuvenation and Healing from Buff Thanks by default, including existing saved settings.

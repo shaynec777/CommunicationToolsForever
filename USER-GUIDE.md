@@ -187,3 +187,9 @@ When the last known guild matched by a partial rule is removed from the guild di
 Guild scans keep the standard Who window from opening for their own responses, then restore normal Who behavior. Forever requires a fresh click or key press for each `/who` request; one click cannot run delayed searches for every guild. Each click advances the queued scan after the cooldown. Starting a separate `/who` search pauses the addon scan.
 
 The guild directory also has **Scan beside each actual guild**. It searches only that guild, even when it was found through a partial rule. Both guild pages show a prominent progress panel with searching/ready/complete state, completed and remaining search counts, members found, and a progress bar. Continue clicking the same Scan button after the cooldown when searches remain. The bar reflects the currently known workload; capped results can add narrower searches.
+
+
+Buff Thanks holds up to ten distinct thank-you messages during combat, keeping them through long fights. After combat it waits for typing to finish and releases queued whispers half a second apart. Public /say thanks still require individual clicks after combat. Entering combat again pauses delivery. Changing the channel, disabling Buff Thanks, clearing the queue, or leaving the world discards pending thanks. Only buffs whose identity and caster are available to the client can be queued.
+
+
+**Thank players in instances** on the Buff Thanks page starts off. Enable it to allow thanks in instanced areas, including dungeons and raids. Outside instances, thanks continue normally. Changing this option clears pending thanks; queued delivery also checks the current instance setting before sending.

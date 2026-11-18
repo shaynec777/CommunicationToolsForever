@@ -118,6 +118,7 @@ local function thank(aura)
     -- A buff the player can cast still qualifies when someone else casts it.
     -- Never use canApplyAura, class, or spellbook knowledge to exclude it.
     local id, spell, source = identify(aura)
+    if FC.BuffThanksAllowedHere and not FC:BuffThanksAllowedHere() then note("Skipped: thanks in instances is disabled."); return end
     if not FC.db.enabled then note("Skipped: Buff Thanks is disabled."); return end
     if not id or type(spell) ~= "string" then note("Skipped: buff identity is unavailable or restricted."); return end
     if FC.db.buffExclusions and FC.db.buffExclusions[(strlower or string.lower)(spell)] then
@@ -149,7 +150,7 @@ local function thank(aura)
         if FC.db.buffExclusions and FC.db.buffExclusions[(strlower or string.lower)(spell)] then return end
         local result = FC:Deliver(message, target)
         if result == "queued" then
-            note("Queued thanks for " .. spell .. " to " .. target .. " until you finish typing.")
+            note("Queued thanks for " .. spell .. " to " .. target .. " until you finish typing or leave combat.")
         elseif result ~= "failed" and result ~= "cancelled" and result ~= "expired" then
             note("Requested thanks for " .. spell .. " to " .. target .. " via " .. FC.db.channel .. (FC.db.channel == "SAY" and " (click send button)." or "; delivery not yet confirmed."))
         end

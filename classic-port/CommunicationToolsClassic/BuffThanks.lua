@@ -62,6 +62,7 @@ function module:Initialize()
             generation = generation + 1; inWorld = false; FC:ClearQueue(); return
         end
         if not inWorld or not FC.db.enabled or GetTime() < readyAt then return end
+        if FC.BuffThanksAllowedHere and not FC:BuffThanksAllowedHere() then return end
         local _, kind, _, sourceGUID, sourceName, _, _, destGUID, _, _, _, spellID, spell, _, auraType = CombatLogGetCurrentEventInfo()
         if kind ~= "SPELL_AURA_APPLIED" or auraType ~= "BUFF" then return end
         if type(sourceGUID) ~= "string" or not sourceGUID:match("^Player%-") or sourceGUID == UnitGUID("player") or destGUID ~= UnitGUID("player") then return end
@@ -80,8 +81,9 @@ function module:Initialize()
         local current = generation
         C_Timer.After(2, function()
             if not inWorld or generation ~= current or not FC.db.enabled or FC.db.buffExclusions[lower(spell)] then return end
+            if FC.BuffThanksAllowedHere and not FC:BuffThanksAllowedHere() then return end
             local result = FC:Deliver(message, target)
-            if result == "queued" then FC:BuffThanksNote("Queued thanks for " .. spell .. " to " .. target .. " until you finish typing.")
+            if result == "queued" then FC:BuffThanksNote("Queued thanks for " .. spell .. " to " .. target .. " until you finish typing or leave combat.")
             elseif result ~= "failed" and result ~= "cancelled" and result ~= "expired" then
                 FC:BuffThanksNote("Requested thanks for " .. spell .. " to " .. target .. "; delivery not yet confirmed.")
             end

@@ -314,6 +314,7 @@ for _, f in ipairs(frames) do if f.messages and type(f.messages) == "table" and 
 assert(conversationWindow and conversationWindow.shown, "Conversation window opens after settings closes")
 
 
+assert(FC.db.thanksInInstances == false, "Instance thanks start off for existing and new settings")
 local savedFocus, savedTimer, savedChat, savedChannel = FC.IsConversationReplyFocused, C_Timer, C_ChatInfo, FC.db.channel
 local typing, delayed, delivered = true, {}, {}
 FC.IsConversationReplyFocused = function() return typing end
@@ -537,3 +538,5 @@ dofile("tests/test_dnd.lua")
 dofile("tests/test_ignore_reply.lua")
 dofile("tests/test_name_alerts.lua")
 dofile("tests/test_whisper_conversations.lua")
+
+dofile("tests/test_combat_thanks.lua")

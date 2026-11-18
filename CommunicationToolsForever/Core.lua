@@ -1,5 +1,5 @@
 local addonName, FC = ...
-FC.version = "0.10.8"
+FC.version = "0.10.9"
 FC.buffThanksDiagnostics = {}
 function FC:BuffThanksNote(message)
     local entries = self.buffThanksDiagnostics
@@ -22,7 +22,7 @@ FC.defaultThanksTemplates = {
     "Thanks for <buffname>, <buffername>. That helps!",
     "<buffername>, thank you for the <buffname> buff!",
 }
-local defaults = { enabled = true, channel = "WHISPER", cooldown = 60,
+local defaults = { enabled = true, channel = "WHISPER", cooldown = 60, thanksInInstances = false,
     thanksTemplate = FC.defaultThanksTemplate }
 
 function FC:ValidateThanksTemplate(template)
@@ -122,14 +122,28 @@ button:SetSize(300, 32)
 button:SetPoint("CENTER", UIParent, "CENTER", 0, -180)
 button:Hide()
 button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+function FC:BuffThanksAllowedHere()
+    if self.db and self.db.thanksInInstances == true then return true end
+    if not IsInInstance then return true end
+    local ok, inside = pcall(IsInInstance)
+    if not ok or not self:IsPublic(inside) then return false end
+    return inside ~= true
+end
+function FC:SetThanksInInstances(enabled)
+    self.db.thanksInInstances = enabled == true
+    self:ClearQueue()
+    if self.RefreshSettings then self:RefreshSettings() end
+end
 function FC:UpdateQueue()
-    if #self.pending == 0 then button:Hide(); return end
+    if #self.pending == 0 or not self:BuffThanksAllowedHere() or (InCombatLockdown and InCombatLockdown()) then button:Hide(); return end
     button:SetText("Send buff thanks (" .. #self.pending .. ")")
     button:Show()
 end
 function FC:ClearQueue()
     self.deliveryGeneration = (self.deliveryGeneration or 0) + 1
     self.pending = {}
+    self.combatThanks = {}
+    self.combatThanksDraining = nil
     self:UpdateQueue()
 end
 function FC:SetBuffThanksEnabled(enabled)
@@ -150,6 +164,8 @@ local function send(message, channel, target)
 end
 button:SetScript("OnClick", function(_, mouseButton)
     if mouseButton == "RightButton" then FC:ClearQueue(); return end
+    if InCombatLockdown and InCombatLockdown() then return end
+    if not FC:BuffThanksAllowedHere() then FC:ClearQueue(); return end
     local item = table.remove(FC.pending, 1)
     if item and GetTime() - item.time < 120 then
         if not send(item.message, item.channel, item.target) then
@@ -158,16 +174,64 @@ button:SetScript("OnClick", function(_, mouseButton)
     end
     FC:UpdateQueue()
 end)
+local function buffThanksTyping(self)
+    if self.IsConversationReplyFocused and self:IsConversationReplyFocused() then return true end
+    local editor = ChatEdit_GetActiveWindow and ChatEdit_GetActiveWindow()
+    return editor and editor:HasFocus()
+end
+function FC:DrainCombatThanks()
+    if self.combatThanksDraining or not self.combatThanks or #self.combatThanks == 0 then return end
+    local generation = self.deliveryGeneration or 0
+    self.combatThanksDraining = true
+    local function nextThanks()
+        if generation ~= (self.deliveryGeneration or 0) then return end
+        if not self.db.enabled or not self:BuffThanksAllowedHere() then self:ClearQueue(); return end
+        if InCombatLockdown and InCombatLockdown() then self.combatThanksDraining = nil; return end
+        if buffThanksTyping(self) then C_Timer.After(0.5, nextThanks); return end
+        local item = table.remove(self.combatThanks, 1)
+        if item then self:Deliver(item.message, item.target) end
+        if #self.combatThanks > 0 then C_Timer.After(0.5, nextThanks)
+        else self.combatThanksDraining = nil end
+    end
+    nextThanks()
+end
+local combatFrame = CreateFrame("Frame")
+combatFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+combatFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+combatFrame:SetScript("OnEvent", function(_, event)
+    local now = GetTime()
+    if event == "PLAYER_REGEN_DISABLED" then
+        for i = #FC.pending, 1, -1 do
+            if now - FC.pending[i].time >= 120 then table.remove(FC.pending, i) end
+        end
+    elseif event == "PLAYER_REGEN_ENABLED" then
+        -- Public thanks still require a click; give them a fresh window after combat.
+        for _, item in ipairs(FC.pending) do item.time = now end
+        FC:DrainCombatThanks()
+    end
+    FC:UpdateQueue()
+end)
 function FC:Deliver(message, target)
+    if not self:BuffThanksAllowedHere() then return "cancelled" end
+    if InCombatLockdown and InCombatLockdown() then
+        self.combatThanks = self.combatThanks or {}
+        for _, item in ipairs(self.combatThanks) do
+            if item.message == message and item.target == target then return "queued" end
+        end
+        if #self.combatThanks >= 10 then table.remove(self.combatThanks, 1) end
+        self.combatThanks[#self.combatThanks + 1] = {message = message, target = target}
+        self:BuffThanksNote("Queued thanks until combat ends.")
+        return "queued"
+    end
     if self.db.channel == "WHISPER" then
         local generation, started = self.deliveryGeneration or 0, GetTime()
         local function focused()
-            if self.IsConversationReplyFocused and self:IsConversationReplyFocused() then return true end
-            local editor = ChatEdit_GetActiveWindow and ChatEdit_GetActiveWindow()
-            return editor and editor:HasFocus()
+            return buffThanksTyping(self)
         end
         local function deliverWhenReady()
             if generation ~= (self.deliveryGeneration or 0) or not self.db.enabled or self.db.channel ~= "WHISPER" then return "cancelled" end
+            if InCombatLockdown and InCombatLockdown() then return self:Deliver(message, target) end
+            if not self:BuffThanksAllowedHere() then return "cancelled" end
             if GetTime() - started >= 120 then
                 self:BuffThanksNote("Expired queued thanks to " .. target .. " while typing."); return "expired"
             end

@@ -118,3 +118,5 @@ dofile("classic-port/tests/test_buffs.lua")
 
 assert(loadfile("tests/test_guild_scan.lua"))("classic-port/CommunicationToolsClassic")
 assert(loadfile("tests/test_friends_list.lua"))("classic-port/CommunicationToolsClassic")
+
+assert(loadfile("tests/test_combat_thanks.lua"))("classic-port/CommunicationToolsClassic/Core.lua")

@@ -308,7 +308,9 @@ function module:Initialize()
     text("Buff Thanks: reply channel (choose one)", "GameFontNormal", 16, y - 8)
     local whisper = checkbox("Whisper", y - 30)
     local say = checkbox("/say", y - 64)
-    text("Whispers are sent automatically. For /say, click the on-screen button to send each thank-you.",
+    local instances = makeCheckbox(panel, "Thank players in instances", 180, y - 30)
+    instances:SetScript("OnClick", function(self) FC:SetThanksInInstances(self:GetChecked()) end)
+    text("Whispers wait until combat and typing finish. For /say, click the on-screen button after combat to send each thank-you.",
         "GameFontHighlightSmall", 20, y - 108, 440)
     text("Changes take effect immediately and are saved account-wide. Changing either setting clears queued thanks.",
         "GameFontHighlightSmall", 20, y - 156, 440)
@@ -422,6 +424,7 @@ function module:Initialize()
         end
         whisper:SetChecked(self.db.channel == "WHISPER")
         say:SetChecked(self.db.channel == "SAY")
+        instances:SetChecked(self.db.thanksInInstances == true)
         for index, editor in ipairs(templates) do
             if not editor:HasFocus() then editor:SetText(self.db.thanksTemplates[index] or "") end
         end

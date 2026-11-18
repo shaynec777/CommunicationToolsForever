@@ -35,3 +35,9 @@ Approve or decline available friend requests, remove friends using the confirmat
 Buff Thanks supports four randomized templates, optional <buffname>/<buffername> labels, a two-second delay, repeat cooldowns, and a scrolling exclusion list. Automatic whispers wait while typing; public /say uses a send button.
 
 Extended Ignore supports typed names or Ctrl+Shift+click on a linked name, with optional editable ignore notifications. Do Not Disturb supports a custom reply, forwarding or referral, and incoming whisper hiding. Name Alerts supports channel choices, sound, a dismissible banner and combat suppression. Whisper Conversations supports tabbed/separate windows, saved history, detachable chats, unread counts, deletion and saved positions. It handles character whispers rather than Battle.net account conversations.
+
+
+Buff Thanks holds up to ten distinct thank-you messages during combat, keeping them through long fights. After combat it waits for typing to finish and releases queued whispers half a second apart. Public /say thanks still require individual clicks after combat. Entering combat again pauses delivery. Changing the channel, disabling Buff Thanks, clearing the queue, or leaving the world discards pending thanks. Only buffs whose identity and caster are available to the client can be queued.
+
+
+**Thank players in instances** on the Buff Thanks page starts off. Enable it to allow thanks in instanced areas, including dungeons and raids. Outside instances, thanks continue normally. Changing this option clears pending thanks; queued delivery also checks the current instance setting before sending.

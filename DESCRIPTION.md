@@ -2,9 +2,9 @@
 
 # CommunicationTools Forever
 
-## New in this update - 0.10.8 beta
+## New in this update - 0.10.9 beta
 
-Buff Thanks now excludes Rejuvenation and Healing by default. Existing settings receive these exclusions automatically; you can adjust the list on the Buff Thanks page. Classic and Forever share version 0.10.8.
+Buff Thanks now holds messages during combat and releases whispers afterward, once typing finishes. The new Thank players in instances option defaults to off; enable it on the Buff Thanks page to allow thanks in dungeons and raids. Classic and Forever share version 0.10.9.
 
 A communication toolbox for World of Warcraft: Forever, for every class.
 
