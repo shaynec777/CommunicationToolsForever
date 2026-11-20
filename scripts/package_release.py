@@ -28,7 +28,7 @@ with zipfile.ZipFile(archive) as bundle:
     for path in files:
         assert bundle.read(path.relative_to(root).as_posix()) == path.read_bytes()
 manifest = {
-    "version": version, "release_type": "beta", "game_version": "1.60.1", "interface": 16001,
+    "version": version, "release_type": "release", "game_version": "1.60.1", "interface": 16001,
     "archive": archive.name, "size": archive.stat().st_size,
     "sha256": hashlib.sha256(archive.read_bytes()).hexdigest(), "files": len(files),
     "checks": ["runtime/TOC versions", "TOC references", "ZIP CRC", "addon-only root", "source/archive equality"],

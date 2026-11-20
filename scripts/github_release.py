@@ -1,4 +1,4 @@
-"""Publish this project's source and beta ZIP using the existing GitHub credential."""
+"""Publish this project's source and release ZIP using the existing GitHub credential."""
 import argparse
 import hashlib
 import json
@@ -80,10 +80,10 @@ except urllib.error.HTTPError as error:
     if error.code != 404:
         raise
     release = call(api + "/releases", {"tag_name": tag, "target_commitish": commit,
-        "name": "CommunicationTools " + args.edition + " " + version + " beta", "draft": False, "prerelease": True,
+        "name": "CommunicationTools " + args.edition + " " + version, "draft": False, "prerelease": False,
         "body": (edition_root / "RELEASE-NOTES.md").read_text(encoding="utf-8")})
 else:
-    release = call(api + f'/releases/{release["id"]}', {"body": (edition_root / "RELEASE-NOTES.md").read_text(encoding="utf-8")}, method="PATCH")
+    release = call(api + f'/releases/{release["id"]}', {"name": "CommunicationTools " + args.edition + " " + version, "prerelease": False, "body": (edition_root / "RELEASE-NOTES.md").read_text(encoding="utf-8")}, method="PATCH")
     reference = call(api + "/git/ref/tags/" + tag)
     if reference["object"]["sha"] != commit:
         call(api + "/git/refs/tags/" + tag, {"sha": commit, "force": False}, method="PATCH")

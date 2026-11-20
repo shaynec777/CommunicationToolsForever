@@ -2,7 +2,7 @@
 
 # CommunicationTools Forever
 
-## New in this update - 0.10.9 beta
+## New in this update - 0.10.9
 
 Buff Thanks now holds messages during combat and releases whispers afterward, once typing finishes. The new Thank players in instances option defaults to off; enable it on the Buff Thanks page to allow thanks in dungeons and raids. Classic and Forever share version 0.10.9.
 

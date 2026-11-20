@@ -21,3 +21,8 @@ CurseForge Forever file 9666936: Post Processing at final browser check. Classic
 Both editions published on GitHub at source commit f8252a34e51c6e422754446c62b21de3a5a3c65b, tags v0.10.9 and classic-v0.10.9. Uploaded ZIP digests verified. Both Lua 5.1 suites and package checks passed, including combat buffering and instance opt-in/out checks. Live confirmation of these two features remains pending.
 
 Both builds installed locally on E: with backups; all 33 packaged files verified. CurseForge Forever file 9682712 and Classic file 9682717 show Processing at the final built-in-browser check. Both are Beta, with automatic publication after approval. No moderation approval claimed. Both descriptions saved at 0.10.9 and retain the requested opening line. JSON receipts and screenshots are under releases/.
+
+
+# Stable release channel - November 20, 2026
+
+At user request, existing 0.10.9 Classic and Forever GitHub releases were promoted to stable and their titles/current notes no longer say beta. Existing tags and ZIP assets were preserved. CurseForge files 9682712 and 9682717 were changed to Release, with titles/current changelogs updated; both show Approved. Both project descriptions updated. Future publication defaults are stable. Historical records remain unchanged. This was a release metadata update; no new gameplay build or installation was needed.

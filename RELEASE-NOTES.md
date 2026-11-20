@@ -1,4 +1,4 @@
-# CommunicationTools Forever 0.10.9 beta
+# CommunicationTools Forever 0.10.9
 
 - Hold up to ten distinct buff thank-you messages during combat, then release whispers half a second apart after combat and typing finish.
 - Keep public /say thanks click-to-send after combat. Clear pending thanks when disabled, cleared, the reply channel changes, or the player leaves the world.
