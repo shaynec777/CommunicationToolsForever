@@ -1,5 +1,5 @@
 local addonName, FC = ...
-FC.version = "0.10.9"
+FC.version = "0.10.18"
 FC.buffThanksDiagnostics = {}
 function FC:BuffThanksNote(message)
     local entries = self.buffThanksDiagnostics
@@ -76,6 +76,7 @@ function FC:SetThanksTemplates(templates)
     end
     if count == 0 then return false, "Keep at least one nonblank thank-you message." end
     self.db.thanksTemplates = pool
+    self.db.thanksTemplatesCustomized = true
     for _, value in ipairs(pool) do if value ~= "" then self.db.thanksTemplate = value; break end end
     self:ClearQueue()
     if self.RefreshSettings then self:RefreshSettings() end
@@ -96,6 +97,50 @@ function FC:InitializeThanksTemplates()
         for index = 2, 4 do pool[index] = self.defaultThanksTemplates[index] end
     end
     self.db.thanksTemplates = pool
+end
+
+-- Templates belong to the actual player, while other preferences remain shared.
+function FC:SelectThanksCharacter(root, shared, scope)
+    if type(UnitGUID) ~= "function" then return nil end
+    local ok, guid = pcall(UnitGUID, "player")
+    if not ok or not self:IsPublic(guid) or type(guid) ~= "string" or not guid:match("^Player%-") then return nil end
+    if root.buffMessagesByCharacterV1 ~= nil and type(root.buffMessagesByCharacterV1) ~= "table" then return nil end
+    root.buffMessagesByCharacterV1 = root.buffMessagesByCharacterV1 or {}
+    local key = scope .. "\n" .. guid
+    local messages = root.buffMessagesByCharacterV1[key]
+    if messages ~= nil and type(messages) ~= "table" then return nil end
+    if not messages then
+        messages = {thanksTemplate = shared.thanksTemplate}
+        if type(shared.thanksTemplates) == "table" then
+            messages.thanksTemplates = {}
+            for i = 1, 4 do messages.thanksTemplates[i] = shared.thanksTemplates[i] end
+        end
+        if self.GetDefaultThanksTemplates then
+            local racePool, raceKey = self:GetDefaultThanksTemplates()
+            if raceKey then messages.thanksTemplates, messages.thanksTemplate = racePool, racePool[1] end
+        end
+        root.buffMessagesByCharacterV1[key] = messages
+    end
+    local function stock(pool, single)
+        if type(pool) ~= "table" then return single == nil or single == self.defaultThanksTemplate end
+        for i = 1, 4 do if pool[i] ~= self.defaultThanksTemplates[i] then return false end end
+        return true
+    end
+    if not messages.thanksTemplatesCustomized and stock(messages.thanksTemplates, messages.thanksTemplate) and self.GetDefaultThanksTemplates then
+        messages.thanksTemplates = self:GetDefaultThanksTemplates()
+        messages.thanksTemplate = messages.thanksTemplates[1]
+    end
+    self.buffMessagesCharacterKey = key
+    return setmetatable({}, {
+        __index = function(_, field)
+            if field == "thanksTemplate" or field == "thanksTemplates" or field == "thanksTemplatesCustomized" then return messages[field] end
+            return shared[field]
+        end,
+        __newindex = function(_, field, value)
+            if field == "thanksTemplate" or field == "thanksTemplates" or field == "thanksTemplatesCustomized" then messages[field] = value
+            else shared[field] = value end
+        end,
+    })
 end
 
 function FC:Print(message)
@@ -259,12 +304,135 @@ function FC:Deliver(message, target)
     self:UpdateQueue()
 end
 
+-- Forever characters share display realms across rulesets. Never use realm labels
+-- as the boundary for sender lists, histories or learned membership.
+function FC:GetForeverContextKey()
+    local rules = Enum and Enum.GameRule
+    local query = C_GameRules and C_GameRules.IsGameRuleActive
+    if type(query) ~= "function" or type(UnitFactionGroup) ~= "function" or not rules then return nil end
+    local values = {}
+    for _, name in ipairs({"HardcoreRuleset", "RPRuleset", "PvPRuleset"}) do
+        local id = rules[name]
+        if not self:IsPublic(id) or type(id) ~= "number" then return nil end
+        local ok, active = pcall(query, id)
+        if not ok or not self:IsPublic(active) or type(active) ~= "boolean" then return nil end
+        values[name] = active
+    end
+    local ok, faction = pcall(UnitFactionGroup, "player")
+    if not ok or not self:IsPublic(faction) or (faction ~= "Alliance" and faction ~= "Horde") then return nil end
+    local mode = values.HardcoreRuleset and "Hardcore"
+        or (values.RPRuleset and values.PvPRuleset and "RP-PvP")
+        or (values.RPRuleset and "RP") or (values.PvPRuleset and "PvP") or "PvE"
+    return mode .. ":" .. faction
+end
+-- Only identity-bearing data belongs to a context. Preferences remain at the
+-- original account root; legacy identity records there are preserved unassigned.
+local contextFields = {
+    extendedIgnore = {blacklist = true},
+    filterGuild = {learned = true, learnedNames = true, imports = true, allowedMembers = true, removedGuilds = true},
+    friendsList = {muted = true},
+    whisperConversations = {history = true},
+    doNotDisturb = {target = true},
+}
+local function copy(value)
+    if type(value) ~= "table" then return value end
+    local result = {}; for k, v in pairs(value) do result[k] = copy(v) end
+    return result
+end
+function FC:SelectForeverContext(root)
+    local key = self:GetForeverContextKey()
+    if not key or type(root) ~= "table" then return nil end
+    if root.contextProfilesV1 ~= nil and type(root.contextProfilesV1) ~= "table" then return nil end
+    if root.characterDataV2 ~= nil and type(root.characterDataV2) ~= "table" then return nil end
+    local old = root.contextProfilesV1 and root.contextProfilesV1[key]
+    if old ~= nil and type(old) ~= "table" then return nil end
+    root.characterDataV2 = root.characterDataV2 or {}
+    local data = root.characterDataV2[key]
+    if data ~= nil and type(data) ~= "table" then return nil end
+    if not data then
+        data = {}
+        for section, fields in pairs(contextFields) do
+            data[section] = {}
+            for field in pairs(fields) do
+                if old and type(old[section]) == "table" then data[section][field] = copy(old[section][field]) end
+            end
+        end
+        root.characterDataV2[key] = data
+    end
+    -- Retain original preferences. Fill only missing preferences from this
+    -- context's 0.10.11 profile, never another context or legacy character data.
+    -- Completion markers belong to the exclusion list that was actually copied.
+    -- Importing a marker alone would suppress additions to an older root list.
+    local exclusionMarkers = {buffHealingExclusionsAdded = true, buffRenewRegrowthExclusionsAdded = true}
+    if old then
+        local copiedExclusions = root.buffExclusions == nil
+        for field, value in pairs(old) do
+            if not contextFields[field] and root[field] == nil
+                and (not exclusionMarkers[field] or copiedExclusions) then root[field] = copy(value) end
+        end
+    end
+    -- Repair the 0.10.12-0.10.18 split-marker migration once. Only restore
+    -- exclusions proven present in a preserved profile; never copy identity data.
+    -- Later manual removals remain respected on subsequent logins.
+    if not root.buffExclusionMarkerRepairV1 then
+        if type(root.buffExclusions) == "table" and type(root.contextProfilesV1) == "table" then
+            for _, previous in pairs(root.contextProfilesV1) do
+                if type(previous) == "table" and type(previous.buffExclusions) == "table" then
+                    for marker, entries in pairs({
+                        buffHealingExclusionsAdded = {rejuvenation = "Rejuvenation", healing = "Healing"},
+                        buffRenewRegrowthExclusionsAdded = {renew = "Renew", regrowth = "Regrowth"},
+                    }) do
+                        if root[marker] == true and previous[marker] == true then
+                            for name, label in pairs(entries) do
+                                if root.buffExclusions[name] == nil and previous.buffExclusions[name] ~= nil then
+                                    root.buffExclusions[name] = label
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        root.buffExclusionMarkerRepairV1 = true
+    end
+    local sections = {}
+    for section, fields in pairs(contextFields) do
+        if type(root[section]) ~= "table" then root[section] = {} end
+        if type(data[section]) ~= "table" then data[section] = {} end
+        local shared, records = root[section], data[section]
+        if old and type(old[section]) == "table" then
+            for field, value in pairs(old[section]) do
+                if not fields[field] and shared[field] == nil then shared[field] = copy(value) end
+            end
+        end
+        sections[section] = setmetatable({}, {
+            __index = function(_, field) if fields[field] then return records[field] end; return shared[field] end,
+            __newindex = function(_, field, value) if fields[field] then records[field] = value else shared[field] = value end end,
+        })
+    end
+    self.contextKey = key
+    return setmetatable({}, {
+        __index = function(_, field) if sections[field] then return sections[field] end; return root[field] end,
+        __newindex = function(_, field, value) assert(not sections[field], "Cannot replace a context section"); root[field] = value end,
+    })
+end
+local initialized, addonLoaded = false, false
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("ADDON_LOADED")
+frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:SetScript("OnEvent", function(_, event, name)
-    if name ~= addonName then return end
-    if type(ForeverCommunicationsDB) ~= "table" then ForeverCommunicationsDB = {} end
-    FC.db = ForeverCommunicationsDB
+    if initialized then return end
+    if event == "ADDON_LOADED" then
+        if name ~= addonName then return end
+        addonLoaded = true
+    elseif event ~= "PLAYER_ENTERING_WORLD" or not addonLoaded then return end
+    if ForeverCommunicationsDB == nil then ForeverCommunicationsDB = {} end
+    local profile = FC:SelectForeverContext(ForeverCommunicationsDB)
+    if not profile then return end -- Retry on world entry; never assume PvE.
+    profile = FC:SelectThanksCharacter(ForeverCommunicationsDB, profile, FC.contextKey)
+    if not profile then return end -- Retry until the actual player GUID is public.
+    FC.db = profile
+    initialized = true
     for key, value in pairs(defaults) do
         if type(FC.db[key]) ~= type(value) then FC.db[key] = value end
     end
@@ -273,16 +441,19 @@ frame:SetScript("OnEvent", function(_, event, name)
     if not FC:ValidateThanksTemplate(FC.db.thanksTemplate) then
         FC.db.thanksTemplate = FC.defaultThanksTemplate
     end
+    FC.contextInitializationEvent = event
     FC:InitializeThanksTemplates()
     for _, module in ipairs(FC.modules) do module:Initialize() end
     FC:Print("Version " .. FC.version .. " loaded.")
-    frame:UnregisterEvent(event)
+    frame:UnregisterEvent("ADDON_LOADED")
+    frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
 end)
 
 SLASH_FOREVERCOMMUNICATIONS1 = "/ct"
 SLASH_FOREVERCOMMUNICATIONS2 = "/forevercomms"
 SLASH_FOREVERCOMMUNICATIONS3 = "/fc"
 SlashCmdList.FOREVERCOMMUNICATIONS = function(input)
+    if not FC.db then FC:Print("Waiting for a verified Forever ruleset and faction before loading settings."); return end
     local command, argument = input:match("^%s*(%S*)%s*(.-)%s*$")
     command, argument = command:lower(), argument:lower()
     if command == "" then
@@ -300,6 +471,9 @@ SlashCmdList.FOREVERCOMMUNICATIONS = function(input)
         FC.buffThanksDebug = argument ~= "off"
         FC:Print("Buff Thanks debug " .. (FC.buffThanksDebug and "on" or "off") .. ".")
         return
+    elseif command == "whisperdiagnosis" then
+        if FC.PrintWhisperDiagnosis then FC:PrintWhisperDiagnosis() else FC:Print("Whisper Conversations has not initialized.") end
+        return
     elseif command == "diagnosis" then
         FC:Print("Buff Thanks recent decisions:")
         for _, message in ipairs(FC.buffThanksDiagnostics) do FC:Print(message) end
@@ -309,7 +483,7 @@ SlashCmdList.FOREVERCOMMUNICATIONS = function(input)
         FC:Print(message and (message .. " (preview only)") or reason)
         return
     elseif command ~= "" and command ~= "status" then
-        FC:Print("/ct opens settings; /ct on | off | channel whisper | channel say | cooldown 60 | clear | preview | status | debug on/off | diagnosis")
+        FC:Print("/ct opens settings; /ct on | off | channel whisper | channel say | cooldown 60 | clear | preview | status | debug on/off | diagnosis | whisperdiagnosis")
         return
     end
     FC:Print("Version " .. FC.version .. "; " .. (FC.db.enabled and "Enabled" or "Disabled") .. "; channel " .. FC.db.channel .. "; repeat cooldown " .. FC.db.cooldown .. " seconds.")

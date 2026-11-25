@@ -27,7 +27,7 @@ Buff Thanks, Extended Ignore, Name Alerts, Whisper Conversations, Filter Chat, F
 
 ## Compatibility
 
-Designed for World of Warcraft: Forever 1.60.1. Character whispers are supported; Battle.net account conversations are not. Whisper history and tool preferences are saved locally, account-wide. Public /say thanks are sent using the on-screen send button.
+Designed for World of Warcraft: Forever 1.60.1. Character whispers are supported; Battle.net account conversations are not. General preferences are shared locally; Buff Thanks messages save per character. Whisper history and other character records stay within their verified Forever ruleset and faction. Public /say thanks are sent using the on-screen send button.
 
 ## Credits
 

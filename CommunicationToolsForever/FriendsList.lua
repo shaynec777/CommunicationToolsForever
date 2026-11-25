@@ -208,7 +208,12 @@ function module:Initialize()
     local muted = {}
     if type(settings.muted) == "table" then
         for key, value in pairs(settings.muted) do
-            if type(key) == "string" and (key:match("^tag:") or key:match("^guid:") or key:match("^character:")) and value == true then muted[key] = true end
+            if type(key) == "string" and (key:match("^tag:") or key:match("^guid:") or key:match("^character:")) and value == true then
+                local character = key:match("^character:(.+)$")
+                local normalized = character and FC:NormalizeBlacklistName(character)
+                if normalized then muted["character:" .. normalized] = true
+                elseif not character then muted[key] = true end
+            end
         end
     end
     settings.muted = muted

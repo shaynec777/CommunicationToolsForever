@@ -1,10 +1,12 @@
-local function fixture()
+local function fixture(settings, initializationEvent)
     local time, list, timers, sends, targets = 100, {}, {}, {}, {}
     local secret, restricted, failScan = {}, false, false
     local reads = 0
     local holdThanks, pendingThanks = false, {}
     local frame
     local FC = { modules = {}, db = { enabled = true, cooldown = 60, channel = "WHISPER" } }
+    FC.contextInitializationEvent = initializationEvent
+    for key, value in pairs(settings or {}) do FC.db[key] = value end
     function FC:IsPublic(value) return value ~= secret end
     function FC:RegisterTool() end
     function FC:ClearQueue() end
@@ -267,3 +269,19 @@ assert(#f.sends == 0, "Rejuvenation and Healing do not trigger thanks")
 f.fire("UNIT_AURA", {addedAuras = {f.aura(91, 110, "Blessing of Might")}})
 assert(#f.sends == 1, "Normal buffs remain eligible")
 print("PASS: incidental quest effect excluded while normal buffs still qualify")
+
+f = fixture({buffHealingExclusionsAdded = true, buffExclusions = {custom = "Custom"}})
+assert(f.db.buffExclusions.custom == "Custom" and f.db.buffExclusions.renew == "Renew" and f.db.buffExclusions.regrowth == "Regrowth", "Upgrade existing healing exclusions without clearing custom entries")
+f.fire("PLAYER_ENTERING_WORLD"); f.setTime(105); f.timers[1](); f.setTime(110)
+f.fire("UNIT_AURA", {addedAuras = {f.aura(100, 110, "Renew"), f.aura(101, 110, "Regrowth")}})
+assert(#f.sends == 0, "Renew and Regrowth do not trigger thanks")
+f.fire("UNIT_AURA", {addedAuras = {f.aura(102, 110, "Fortitude")}})
+assert(#f.sends == 1, "Ordinary buff still triggers thanks")
+
+-- Context identity may become available only during world entry.
+f = fixture(nil, "PLAYER_ENTERING_WORLD")
+f.fire("UNIT_AURA", {addedAuras = {f.aura(110, 20)}})
+assert(#f.sends == 0, "Deferred initialization ignores old auras")
+f.setTime(105); f.timers[1](); f.setTime(110)
+f.fire("UNIT_AURA", {addedAuras = {f.aura(111, 110)}})
+assert(#f.sends == 1, "Deferred world-entry initialization accepts subsequent buffs")

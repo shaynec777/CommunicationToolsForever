@@ -41,3 +41,5 @@ Buff Thanks holds up to ten distinct thank-you messages during combat, keeping t
 
 
 **Thank players in instances** on the Buff Thanks page starts off. Enable it to allow thanks in instanced areas, including dungeons and raids. Outside instances, thanks continue normally. Changing this option clears pending thanks; queued delivery also checks the current instance setting before sending.
+
+Buff Thanks message templates save separately for each character. New character profiles start with four race-themed messages when the race is recognized. Existing customized messages are kept; Restore defaults loads your current race preset. Generic messages cover unknown races. Subsequent edits affect only that character. Other Buff Thanks preferences remain shared.

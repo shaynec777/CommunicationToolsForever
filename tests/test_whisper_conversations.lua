@@ -201,3 +201,19 @@ assert(secondTile.frameLevel > firstTile.frameLevel + 5, "Window groups have dis
 firstTile.scripts.OnMouseDown(firstTile)
 assert(firstTile.frameLevel > secondTile.frameLevel, "Clicking a window brings its complete frame group forward")
 print("PASS: detached tiling and separate frame levels prevent overlapping chat controls")
+
+local diagnosis = fixture()
+local d = diagnosis.fc
+local printed = {}
+d.Print = function(_, message) printed[#printed + 1] = message end
+d:PrintWhisperDiagnosis()
+assert(printed[2]:find("No event received", 1, true))
+d:RecordConversationWhisper("CHAT_MSG_WHISPER", "Private text", "Private Sender")
+assert(d.whisperLastDecision == "Conversation window opened")
+d:RecordConversationWhisper("CHAT_MSG_WHISPER", diagnosis.secret, "Private Sender")
+assert(d.whisperLastDecision == "Message restricted by game")
+d:RecordConversationWhisper("CHAT_MSG_WHISPER_INFORM", "Outgoing", "Private Sender")
+assert(d.whisperLastDecision == "Message restricted by game", "Outgoing events preserve last incoming decision")
+d:PrintWhisperDiagnosis()
+for _, line in ipairs(printed) do assert(not line:find("Private", 1, true), "Diagnostics omit sender and message") end
+print("PASS: incoming whisper diagnostics report decisions without private content")

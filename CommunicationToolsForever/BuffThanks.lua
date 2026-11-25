@@ -176,6 +176,11 @@ function module:Initialize()
         FC.db.buffExclusions["healing"] = "Healing"
         FC.db.buffHealingExclusionsAdded = true
     end
+    if not FC.db.buffRenewRegrowthExclusionsAdded then
+        FC.db.buffExclusions["renew"] = "Renew"
+        FC.db.buffExclusions["regrowth"] = "Regrowth"
+        FC.db.buffRenewRegrowthExclusionsAdded = true
+    end
     FC:RegisterTool({
         name = "Buff Thanks",
         settingsPage = "buffThanks",
@@ -187,7 +192,7 @@ function module:Initialize()
     frame:RegisterEvent("PLAYER_ENTERING_WORLD")
     frame:RegisterEvent("PLAYER_LEAVING_WORLD")
     frame:RegisterUnitEvent("UNIT_AURA", "player")
-    frame:SetScript("OnEvent", function(_, event, unit, update)
+    local function onEvent(_, event, unit, update)
         if event == "PLAYER_LEAVING_WORLD" then
             generation = generation + 1
             ready, worldEntered = false, false
@@ -233,5 +238,7 @@ function module:Initialize()
                 if public(id) then seen[id] = nil end
             end
         end
-    end)
+    end
+    frame:SetScript("OnEvent", onEvent)
+    if FC.contextInitializationEvent == "PLAYER_ENTERING_WORLD" then onEvent(frame, "PLAYER_ENTERING_WORLD") end
 end

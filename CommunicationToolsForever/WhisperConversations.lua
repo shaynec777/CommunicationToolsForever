@@ -355,13 +355,27 @@ local function prune(protectedKey)
     end
 end
 function FC:RecordConversationWhisper(event, message, author, flags, guid)
-    if event == "CHAT_MSG_WHISPER" and self.IsFriendMuted and self:IsFriendMuted(author, guid) then return end
-    if event == "CHAT_MSG_WHISPER" and self.IsChatFiltered and self:IsChatFiltered(message, event) then return end
-    if event == "CHAT_MSG_WHISPER" and self.IsGuildFiltered and self:IsGuildFiltered(author, guid) then return end
-    if not settings.enabled or not self:IsPublic(message) or not self:IsPublic(author) or not self:IsPublic(flags)
-        or type(message) ~= "string" or type(author) ~= "string" or flags == "GM" or self:IsBlacklisted(author) then return end
+    local incoming = event == "CHAT_MSG_WHISPER"
+    local function decision(reason)
+        if incoming then FC.whisperLastDecision = reason end
+    end
+    decision("Checking friend mute")
+    if event == "CHAT_MSG_WHISPER" and self.IsFriendMuted and self:IsFriendMuted(author, guid) then decision("Friend muted"); return end
+    decision("Checking word filter")
+    if event == "CHAT_MSG_WHISPER" and self.IsChatFiltered and self:IsChatFiltered(message, event) then decision("Word filter matched"); return end
+    decision("Checking guild filter")
+    if event == "CHAT_MSG_WHISPER" and self.IsGuildFiltered and self:IsGuildFiltered(author, guid) then decision("Guild filter matched"); return end
+    if not settings.enabled then decision("Whisper Conversations disabled"); return end
+    if not self:IsPublic(message) then decision("Message restricted by game"); return end
+    if not self:IsPublic(author) then decision("Sender restricted by game"); return end
+    if not self:IsPublic(flags) then decision("Sender flags restricted by game"); return end
+    if type(message) ~= "string" or type(author) ~= "string" then decision("Missing message or sender"); return end
+    if flags == "GM" then decision("GM whisper excluded"); return end
+    decision("Checking player blacklist")
+    if self:IsBlacklisted(author) then decision("Player blacklisted"); return end
+    decision("Normalizing sender name")
     local key, name = nameOf(author)
-    if not key then return end
+    if not key then decision("Sender name unavailable"); return end
     local outgoing = event == "CHAT_MSG_WHISPER_INFORM"
     local c = history[key] or {name = name, messages = {}, unread = 0}
     history[key] = c
@@ -371,17 +385,30 @@ function FC:RecordConversationWhisper(event, message, author, flags, guid)
     local hidden = dnd and dnd.enabled and dnd.hide
     if not outgoing and not visible(key) then c.unread = math.min(999, (c.unread or 0) + 1) end
     prune(key)
-    if hidden and not outgoing then self:RefreshWhisperTabs(); return end
+    if hidden and not outgoing then decision("DND hides incoming whispers"); self:RefreshWhisperTabs(); return end
     if not outgoing and not visible(key) and settings.autoOpen and not hidden
         and not (main and main:IsShown() and main.reply:HasFocus())
         and not (settings.suppressInCombat and InCombatLockdown and InCombatLockdown()) then
+        decision("Opening conversation window")
         self:OpenWhisperConversation(key)
+        decision("Conversation window opened")
     elseif visible(key) then
+        decision("Conversation already visible")
         c.unread = 0
         if detached[key] and detached[key]:IsShown() then render(detached[key], key) end
         if active == key and main and main:IsShown() then render(main, key) end
+    else
+        if not settings.autoOpen then decision("Automatic opening disabled")
+        elseif main and main:IsShown() and main.reply:HasFocus() then decision("Kept current reply focused")
+        else decision("Combat suppression active") end
     end
     self:RefreshWhisperTabs()
+end
+function FC:PrintWhisperDiagnosis()
+    self:Print("Whisper Conversations: " .. (settings.enabled and "enabled" or "disabled")
+        .. "; auto-open " .. (settings.autoOpen and "on" or "off")
+        .. "; combat suppression " .. (settings.suppressInCombat and "on" or "off") .. ".")
+    self:Print("Last incoming whisper: " .. (self.whisperLastDecision or "No event received since reload") .. ".")
 end
 function FC:BuildWhisperConversationSettings(panel, text)
     text("Tabbed character whispers with detachable windows. History is saved on this computer across reloads and logouts. Normal chat whispers remain available.", "GameFontHighlightSmall", 20, -8, 440)

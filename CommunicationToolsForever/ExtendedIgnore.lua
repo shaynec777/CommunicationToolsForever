@@ -14,7 +14,7 @@ function FC:SaveIgnoreReply(enabled, message)
     return true, "Ignore reply saved."
 end
 
--- Store full names to avoid ignoring unrelated characters on other realms.
+-- Forever names are scoped by verified ruleset/faction in Core, not display realms.
 function FC:NormalizeBlacklistName(value)
     if not self:IsPublic(value) or type(value) ~= "string" then return nil, "Enter a character name." end
     value = value:match("^%s*(.-)%s*$")
@@ -27,13 +27,14 @@ function FC:NormalizeBlacklistName(value)
     name = name:match("^%s*(.-)%s*$"):gsub(" +", " ")
     local letters = name:gsub(" ", ""):gsub("'", "")
     if letters == "" or letters:find("[%s%d%p%c]") then return nil, "Enter a character name, not a chat link or BattleTag." end
-    realm = realm or (GetNormalizedRealmName and GetNormalizedRealmName()) or GetRealmName()
-    if not self:IsPublic(realm) or type(realm) ~= "string" then return nil, "Realm unavailable. Enter Name-Realm." end
-    realm = realm:gsub("%s+", "")
-    if realm == "" or realm:find("[%c|:<>/\\%-]") then return nil, "Enter a valid realm after the dash." end
-    local fullName = name .. "-" .. realm
+    -- Accept legacy Name-Realm input, but never query a display-realm API.
+    -- Those labels are not an identity boundary on Forever and may be absent.
+    if realm then
+        realm = realm:gsub("%s+", "")
+        if realm == "" or realm:find("[%c|:<>/\\%-]") then return nil, "Enter a valid legacy realm suffix." end
+    end
     local lower = strlower or string.lower
-    return lower(fullName), fullName
+    return lower(name), name
 end
 
 function FC:SetExtendedIgnoreEnabled(enabled)
@@ -81,7 +82,7 @@ function FC:BuildExtendedIgnoreSettings(panel, top, text)
     top = top - 280
     local editor = self:CreateEntryEditor(panel, text, {
         top = top, caption = "Players to ignore", addLabel = "Add player", maxBytes = 160,
-        help = "Enter a full character name. A name without a realm uses this realm. Ctrl+Shift+left-click a chat name also adds it. Enter keeps focus; \195\151 deletes. Changes save immediately.",
+        help = "Enter a full character name. Names are scoped to your ruleset and faction. Ctrl+Shift+left-click a chat name also adds it. Enter keeps focus; \195\151 deletes. Changes save immediately.",
         GetEntries = function()
             local names = {}
             for _, name in pairs(FC.db.extendedIgnore.blacklist) do names[#names + 1] = name end
@@ -92,7 +93,7 @@ function FC:BuildExtendedIgnoreSettings(panel, top, text)
     })
     self.ignoreListEditor = editor
     function FC:RefreshBlacklist() editor.Refresh() end
-    text("The list is saved account-wide. Disabling Extended Ignore keeps your list. This filters new character chat locally; it does not change Blizzard's ignore list or remove earlier messages.",
+    text("The list is saved per ruleset and faction. Disabling Extended Ignore keeps your list. This filters new character chat locally; it does not change Blizzard's ignore list or remove earlier messages.",
         "GameFontHighlightSmall", 20, top - 484, 440)
     local notify = CreateFrame("CheckButton", "CommunicationToolsForeverIgnoreReplyToggle", panel, "UICheckButtonTemplate")
     notify:SetPoint("TOPLEFT", 16, replyTop - 8)

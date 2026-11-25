@@ -1,3 +1,61 @@
+# 0.10.18 - November 25, 2026
+
+- Add four race-themed Buff Thanks messages for 27 recognized races, including Night Elf and High Order Skyborne. New profiles choose their race automatically; Restore defaults reloads that race set. Existing customized messages remain intact.
+- Save Buff Thanks messages per character. Other general preferences stay shared; original account messages remain preserved.
+- Separate Forever whisper histories, player-name lists, forwarding targets and guild membership records by verified ruleset and faction, including RP-PvP, while preserving shared settings, filter words and guild rules.
+- Add Renew and Regrowth to healing exclusions and repair migrated exclusion lists without removing custom entries.
+- Fix Forever whisper-name handling when display-realm APIs are unavailable. Preserve Classic's realm-qualified name handling.
+- Add /ct whisperdiagnosis for session-only popup decisions without message text or sender names. /ct, /fc and /forevercomms open CommunicationTools.
+
+# 0.10.17 - November 24, 2026
+
+- Save Buff Thanks message templates per character using the public player GUID, retaining the Forever ruleset/faction boundary.
+- Initialize each character from the preserved shared messages once; later edits affect only that character. Other preferences remain shared.
+- Wait for a verified character identity before initialization and preserve safe world-entry buff handling in both editions.
+
+# 0.10.16 - November 24, 2026
+
+- Repair the Forever migration case where healing-exclusion completion flags were copied without their exclusion list, allowing Renew/Regrowth thanks again.
+- Restore missing healing exclusions from preserved profiles once, retain custom exclusions, and respect later manual removals.
+- Keep exclusion lists and completion flags together in future migrations. Classic remains behaviorally unchanged with the synchronized version.
+
+# 0.10.15 - November 23, 2026
+
+- Restore /ct at user request; CraftingTools will change its shortcut separately. /fc and /forevercomms remain available.
+- Fix Forever whisper popups rejecting valid sender names when display-realm APIs return no value. Player-name matching now uses full names within the verified ruleset/faction context.
+- Preserve scoped ignored names, friend mutes, guild imports and member exceptions by normalizing legacy realm suffixes during initialization.
+- Classic retains realm-qualified name matching; both editions use version 0.10.15.
+
+# 0.10.14 - November 23, 2026
+
+- Use /comms to open CommunicationTools and /comms whisperdiagnosis for whisper popup diagnostics. Keep /fc and /forevercomms aliases.
+- Stop claiming /ct, which CraftingTools also uses, and update the setup guides.
+
+# 0.10.13 - November 23, 2026
+
+- Add /ct whisperdiagnosis to report the last incoming-whisper decision and popup preferences without including message text or sender names.
+- Diagnostic state is session-only; whisper filtering and popup preferences are unchanged.
+
+# 0.10.12 - November 21, 2026
+
+- Restore shared general settings, filter words and guild-name rules while preserving existing account preferences.
+- Scope whisper histories, player-name lists, forwarding recipients and guild membership records by verified Forever ruleset and faction.
+- Retain known 0.10.11 context records and preserve unassigned older records without guessing their context.
+
+# 0.10.11 - November 21, 2026
+
+- Forever settings, whisper histories and guild/member lists now use separate profiles for each verified ruleset and faction, including RP-PvP.
+- Existing unassigned account data remains preserved; new profiles start with defaults rather than guessing its original context.
+- Wait for native identity APIs when needed and retain safe buff startup behavior.
+- Includes the Renew and Regrowth healing exclusions from 0.10.10.
+
+# 0.10.10 - November 20, 2026
+
+- Add Renew and Regrowth to Buff Thanks healing exclusions. Existing saved settings receive these entries once without losing custom exclusions.
+- Correct the missing Renew exclusion reported in game; ordinary buffs remain eligible for thanks.
+
+Classic and Forever passed Lua 5.1 regression tests and package checks, including existing-settings migration and suppression of these healing effects.
+
 # 0.10.9 beta - November 18, 2026
 
 - Add Thank players in instances, off by default, with checks before detecting and sending thanks and cancellation when the option changes.

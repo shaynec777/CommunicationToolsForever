@@ -2,10 +2,11 @@
 ## Title: CommunicationTools Classic
 ## Notes: Buff Thanks, Extended Ignore, Do Not Disturb, Name Alerts, Whisper Conversations, Filter Chat, Filter Guild, and Friends List.
 ## Author: shaynec777
-## Version: 0.10.9
+## Version: 0.10.18
 ## SavedVariables: ClassicCommunicationsDB
 
 Core.lua
+RaceThanks.lua
 ClassicCompat.lua
 BuffThanks.lua
 ExtendedIgnore.lua

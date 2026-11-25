@@ -2,9 +2,9 @@
 
 # CommunicationTools Forever
 
-## New in this update - 0.10.9
+## New in this update - 0.10.18
 
-Buff Thanks now holds messages during combat and releases whispers afterward, once typing finishes. The new Thank players in instances option defaults to off; enable it on the Buff Thanks page to allow thanks in dungeons and raids. Classic and Forever share version 0.10.9.
+Buff Thanks now saves its four messages per character and offers race-themed starting messages, including Night Elf and Skyborne. Restore defaults chooses your character's race set; customized wording stays yours. Forever keeps character records within their ruleset and faction while general preferences remain shared. Classic and Forever share version 0.10.18.
 
 A communication toolbox for World of Warcraft: Forever, for every class.
 
@@ -41,7 +41,7 @@ Buff Thanks, Extended Ignore, Name Alerts, Whisper Conversations, Filter Chat, F
 
 ## Compatibility
 
-Designed for World of Warcraft: Forever 1.60.1. Character whispers are supported; Battle.net account conversations are not. Whisper history and tool preferences are saved locally, account-wide. Public /say thanks are sent using the on-screen send button.
+Designed for World of Warcraft: Forever 1.60.1. Character whispers are supported; Battle.net account conversations are not. General preferences are shared locally; Buff Thanks messages save per character. Whisper history and other character records stay within their verified Forever ruleset and faction. Public /say thanks are sent using the on-screen send button.
 
 ## Credits
 

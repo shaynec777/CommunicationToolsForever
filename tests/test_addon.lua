@@ -41,8 +41,12 @@ UISpecialFrames = {}
 DEFAULT_CHAT_FRAME = { AddMessage = function() end }
 SlashCmdList = {}
 issecretvalue = function(value) return value == secret end
+UnitGUID = function() return "Player-TestOwner" end
 GetNormalizedRealmName = function() return "HomeRealm" end
 GetRealmName = function() return "Home Realm" end
+Enum = {GameRule = {HardcoreRuleset = 1, RPRuleset = 2, PvPRuleset = 3}}
+C_GameRules = {IsGameRuleActive = function() return false end}
+UnitFactionGroup = function() return "Alliance" end
 GetTime = function() return 100 end
 IsControlKeyDown = function() return ctrl end
 IsShiftKeyDown = function() return shift end
@@ -70,7 +74,7 @@ hooksecurefunc = function(name, callback) hooks[name] = callback end
 FCF_OpenNewWindow = function() end
 FCF_OpenTemporaryWindow = function() end
 local FC = {}
-for _, file in ipairs({"Core.lua", "BuffThanks.lua", "ExtendedIgnore.lua", "DoNotDisturb.lua", "NameAlerts.lua", "WhisperConversations.lua", "FilterChat.lua", "FilterGuild.lua", "FriendsList.lua", "Settings.lua", "ChatAccess.lua"}) do
+for _, file in ipairs({"Core.lua", "RaceThanks.lua", "BuffThanks.lua", "ExtendedIgnore.lua", "DoNotDisturb.lua", "NameAlerts.lua", "WhisperConversations.lua", "FilterChat.lua", "FilterGuild.lua", "FriendsList.lua", "Settings.lua", "ChatAccess.lua"}) do
     assert(loadfile("CommunicationToolsForever/" .. file))("CommunicationToolsForever", FC)
 end
 for _, f in ipairs(frames) do
@@ -81,7 +85,7 @@ assert(FC.db.extendedIgnore.enabled)
 assert(FC:AddBlacklistName("  Alice  "))
 assert(FC:IsBlacklisted("ALICE-Home Realm"), "Case and realm whitespace normalization")
 assert(FC:IsBlacklisted("alice"), "Unqualified author matches current realm")
-assert(not FC:IsBlacklisted("Alice-OtherRealm"), "Do not block same name on another realm")
+assert(FC:IsBlacklisted("Alice-OtherRealm"), "Forever display suffix does not split a context identity")
 assert(not FC:AddBlacklistName("Alice-HomeRealm"), "Duplicate add")
 assert(FC:AddBlacklistName("Bob-Other Realm"))
 for event, filter in pairs(filters) do
@@ -94,21 +98,21 @@ assert(not filters.CHAT_MSG_WHISPER_INFORM, "Don't suppress outgoing whispers")
 assert(not FC:AddBlacklistName("Bad|Hplayer:Link"))
 assert(FC:AddBlacklistName("Some One"), "Forever names can contain surnames")
 assert(FC:IsBlacklisted("some one-HomeRealm"))
-assert(not FC:IsBlacklisted("Some One-OtherRealm"))
+assert(FC:IsBlacklisted("Some One-OtherRealm"))
 assert(not FC:AddBlacklistName("Name#1234"))
 assert(not FC:AddBlacklistName("Name-"))
 assert(not FC:AddBlacklistName(secret))
 assert(FC:AddBlacklistName("Chloé-HomeRealm"), "Accented character names")
 FC:SetExtendedIgnoreEnabled(false)
 assert(not FC:IsBlacklisted("Alice"), "Disabled tool passes messages")
-assert(FC.db.extendedIgnore.blacklist["alice-homerealm"], "Disabling preserves list")
+assert(FC.db.extendedIgnore.blacklist["alice"], "Disabling preserves list")
 local click = callbacks["ChatFrame.OnHyperlinkClick"]
 local function nameClick(link, button)
     click[1](click[2], {}, link, "[Name]", button or "LeftButton")
 end
 ctrl, shift = true, true
 nameClick("player:Disabled:12:WHISPER")
-assert(not FC.db.extendedIgnore.blacklist["disabled-homerealm"])
+assert(not FC.db.extendedIgnore.blacklist["disabled"])
 FC:SetExtendedIgnoreEnabled(true)
 ctrl, shift = true, false
 nameClick("player:Charlie:12:WHISPER")
@@ -398,7 +402,7 @@ assert(FC.db.filterGuild.imports["bad guild"].count == 2)
 assert(not FC:IsGuildFiltered("Alice Raven", nil))
 FC.db.filterGuild.useImports = true
 assert(FC:IsGuildFiltered("Alice Raven", nil), "Optional import identifies unavailable senders")
-assert(not FC:IsGuildFiltered("Alice Raven-OtherRealm", nil), "Imported identity remains realm-qualified")
+assert(FC:IsGuildFiltered("Alice Raven-OtherRealm", nil), "Forever import matches full name within its ruleset/faction context")
 assert(not FC:IsGuildFiltered(secret, nil))
 assert(not FC:IsGuildFiltered("Alice Raven", secret))
 assert(not FC:ImportGuildRoster("Bad Guild", "Alice Raven\n|Hbad"))
@@ -540,3 +544,36 @@ dofile("tests/test_name_alerts.lua")
 dofile("tests/test_whisper_conversations.lua")
 
 dofile("tests/test_combat_thanks.lua")
+
+dofile("tests/test_forever_context.lua")
+
+-- Realm APIs may be unavailable; none are needed for Forever names or popups.
+local oldNormalized, oldRealm = GetNormalizedRealmName, GetRealmName
+GetNormalizedRealmName = function() error("Display realm API must not be called") end
+GetRealmName = GetNormalizedRealmName
+assert(FC:NormalizeBlacklistName("Danath Trollbane") == "danath trollbane")
+assert(FC:NormalizeBlacklistName("Danath Trollbane-LegacyRealm") == "danath trollbane")
+FC.db.extendedIgnore.blacklist["legacy person-oldrealm"] = "Legacy Person-OldRealm"
+FC.modules[2]:Initialize()
+FC.db.extendedIgnore.enabled = true
+assert(FC:IsBlacklisted("Legacy Person"), "Existing scoped ignored names migrate without a realm")
+FC.db.friendsList.muted["character:legacy muted-oldrealm"] = true
+FC.modules[8]:Initialize()
+assert(FC:IsFriendMuted("Legacy Muted"), "Existing character mutes retain their context identity")
+FC.db.filterGuild.guilds = {"Legacy Guild"}
+FC.db.filterGuild.allowedMembers["legacy guild\nlegacy member-oldrealm"] = true
+FC.db.filterGuild.imports["legacy guild"] = {name = "Legacy Guild", count = 1, members = {["legacy member-oldrealm"] = true}}
+FC.modules[7]:Initialize()
+assert(FC.db.filterGuild.allowedMembers["legacy guild\nlegacy member"], "Existing guild member exceptions migrate")
+assert(FC.db.filterGuild.imports["legacy guild"].members["legacy member"], "Existing imported names migrate")
+FC.db.whisperConversations.enabled = true
+FC.db.whisperConversations.autoOpen = true
+FC.db.doNotDisturb.enabled = false
+InCombatLockdown = function() return false end
+FC:RecordConversationWhisper("CHAT_MSG_WHISPER", "Test message", "Danath Trollbane")
+assert(FC.db.whisperConversations.history["danath trollbane"], "Incoming whisper records without display-realm APIs")
+assert(FC.whisperLastDecision == "Conversation window opened" or FC.whisperLastDecision == "Conversation already visible")
+GetNormalizedRealmName, GetRealmName = oldNormalized, oldRealm
+print("PASS: Forever whisper popup and legacy names work without display realm APIs")
+
+assert(loadfile("tests/test_race_thanks.lua"))(FC)

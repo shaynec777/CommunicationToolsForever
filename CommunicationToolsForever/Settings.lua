@@ -264,7 +264,7 @@ function module:Initialize()
     logo:SetPoint("TOPLEFT", 12, 0)
     logo:SetTexture("Interface\\AddOns\\" .. addonName .. "\\Media\\RadioLogo.tga")
     label(main.content, "Your communication toolbox", "GameFontNormalLarge", 160, -8, 510)
-    label(main.content, "Version " .. FC.version, "GameFontHighlightSmall", 160, -34, 510)
+    label(main.content, "Version " .. FC.version .. " | " .. (FC.contextKey or ""), "GameFontHighlightSmall", 160, -34, 510)
     label(main.content, "Enable the tools you want. Open a card to adjust its details.", "GameFontHighlight", 20, -80, 660)
 
     local function makeCheckbox(parent, value, x, y)
@@ -314,7 +314,7 @@ function module:Initialize()
         "GameFontHighlightSmall", 20, y - 108, 440)
     text("Changes take effect immediately and are saved account-wide. Changing either setting clears queued thanks.",
         "GameFontHighlightSmall", 20, y - 156, 440)
-    text("Random thank-you messages", "GameFontNormal", 20, -210)
+    text("Random thank-you messages (this character)", "GameFontNormal", 20, -210)
     text("Use any wording, even just \"Thanks!\". Labels are optional: <buffname> inserts the buff; <buffername> inserts the player. Use either, both, or neither. One nonblank message is picked randomly. Leave unused boxes blank; keep at least one. Limit: 200 bytes each, 255 after substitution.",
         "GameFontHighlightSmall", 20, -238, 440)
     local templates, previews = {}, {}
@@ -376,8 +376,8 @@ function module:Initialize()
     end
     reset:SetScript("OnClick", function()
         for _, editor in ipairs(templates) do editor:ClearFocus() end
-        FC:SetThanksTemplates(FC.defaultThanksTemplates)
-        feedback:SetText("Default message pool restored.")
+        FC:SetThanksTemplates(FC:GetDefaultThanksTemplates())
+        feedback:SetText("Race default messages restored.")
     end)
     local exclusionEditor = FC:CreateEntryEditor(panel, text, {
         top = -960, caption = "Buffs excluded from thanks", addLabel = "Add buff",

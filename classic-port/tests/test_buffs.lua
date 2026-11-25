@@ -24,6 +24,8 @@ assert(#callbacks == 0)
 now = 106
 buff("SPELL_AURA_APPLIED",nil,nil,nil,"Rejuvenation")
 buff("SPELL_AURA_APPLIED",nil,nil,nil,"Healing")
+buff("SPELL_AURA_APPLIED",nil,nil,nil,"Renew")
+buff("SPELL_AURA_APPLIED",nil,nil,nil,"Regrowth")
 assert(#callbacks == 0, "Healing effects never schedule thanks")
 buff("SPELL_AURA_REFRESH")
 buff("SPELL_AURA_APPLIED","Player-self")

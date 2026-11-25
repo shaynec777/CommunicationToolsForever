@@ -1,9 +1,10 @@
-# CommunicationTools Classic 0.10.9
+# CommunicationTools Classic 0.10.18
 
-- Hold up to ten distinct buff thank-you messages during combat, then release whispers half a second apart after combat and typing finish.
-- Keep public /say thanks click-to-send after combat. Clear pending thanks when disabled, cleared, the reply channel changes, or the player leaves the world.
-- Add **Thank players in instances**, off by default. Enable it on the Buff Thanks page to allow thanks in dungeons, raids and other instances.
-- Recheck the instance setting before delayed delivery; changing the option clears pending thanks.
-- Keep Classic and Forever on version 0.10.9.
+- Add four race-themed Buff Thanks messages for 27 recognized races, including Night Elf and High Order Skyborne. New profiles choose their race automatically; Restore defaults reloads that race set. Existing customized messages remain intact.
+- Save Buff Thanks messages per character. Other general preferences stay shared; original account messages remain preserved.
+- Separate Forever whisper histories, player-name lists, forwarding targets and guild membership records by verified ruleset and faction, including RP-PvP, while preserving shared settings, filter words and guild rules.
+- Add Renew and Regrowth to healing exclusions and repair migrated exclusion lists without removing custom entries.
+- Fix Forever whisper-name handling when display-realm APIs are unavailable. Preserve Classic's realm-qualified name handling.
+- Add /ct whisperdiagnosis for session-only popup decisions without message text or sender names. /ct, /fc and /forevercomms open CommunicationTools.
 
-Both editions passed Lua 5.1 regression and package checks. Tests cover long fights, duplicate suppression, queue limits, paced draining, re-entering combat, typing, cancellation, public clicks and instance opt-in/out. Live confirmation of combat buffering and the new instance option remains pending.
+Stable Release. Both editions passed Lua 5.1 regression tests and archive verification. User testing confirmed race defaults, per-character saving and available healing-exclusion cases.

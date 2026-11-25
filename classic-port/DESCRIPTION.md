@@ -2,9 +2,9 @@
 
 # CommunicationTools Classic
 
-## New in this update - 0.10.9
+## New in this update - 0.10.18
 
-Buff Thanks now holds messages during combat and releases whispers afterward, once typing finishes. The new Thank players in instances option defaults to off; enable it on the Buff Thanks page to allow thanks in dungeons and raids. Classic and Forever share version 0.10.9.
+Buff Thanks now saves its four messages per character and offers race-themed starting messages, including Night Elf and Skyborne. Restore defaults chooses your character's race set; customized wording stays yours. Forever keeps character records within their ruleset and faction while general preferences remain shared. Classic and Forever share version 0.10.18.
 
 A configurable communication toolbox for World of Warcraft Classic Era. Open `/ct` or right-click ordinary text or blank space in chat. Enable each tool independently from the main menu and configure it on its own settings page.
 

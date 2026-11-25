@@ -1,5 +1,5 @@
 local addonName, FC = ...
-FC.version = "0.10.9"
+FC.version = "0.10.18"
 FC.buffThanksDiagnostics = {}
 function FC:BuffThanksNote(message)
     local entries = self.buffThanksDiagnostics
@@ -76,6 +76,7 @@ function FC:SetThanksTemplates(templates)
     end
     if count == 0 then return false, "Keep at least one nonblank thank-you message." end
     self.db.thanksTemplates = pool
+    self.db.thanksTemplatesCustomized = true
     for _, value in ipairs(pool) do if value ~= "" then self.db.thanksTemplate = value; break end end
     self:ClearQueue()
     if self.RefreshSettings then self:RefreshSettings() end
@@ -96,6 +97,50 @@ function FC:InitializeThanksTemplates()
         for index = 2, 4 do pool[index] = self.defaultThanksTemplates[index] end
     end
     self.db.thanksTemplates = pool
+end
+
+-- Templates belong to the actual player, while other preferences remain shared.
+function FC:SelectThanksCharacter(root, shared, scope)
+    if type(UnitGUID) ~= "function" then return nil end
+    local ok, guid = pcall(UnitGUID, "player")
+    if not ok or not self:IsPublic(guid) or type(guid) ~= "string" or not guid:match("^Player%-") then return nil end
+    if root.buffMessagesByCharacterV1 ~= nil and type(root.buffMessagesByCharacterV1) ~= "table" then return nil end
+    root.buffMessagesByCharacterV1 = root.buffMessagesByCharacterV1 or {}
+    local key = scope .. "\n" .. guid
+    local messages = root.buffMessagesByCharacterV1[key]
+    if messages ~= nil and type(messages) ~= "table" then return nil end
+    if not messages then
+        messages = {thanksTemplate = shared.thanksTemplate}
+        if type(shared.thanksTemplates) == "table" then
+            messages.thanksTemplates = {}
+            for i = 1, 4 do messages.thanksTemplates[i] = shared.thanksTemplates[i] end
+        end
+        if self.GetDefaultThanksTemplates then
+            local racePool, raceKey = self:GetDefaultThanksTemplates()
+            if raceKey then messages.thanksTemplates, messages.thanksTemplate = racePool, racePool[1] end
+        end
+        root.buffMessagesByCharacterV1[key] = messages
+    end
+    local function stock(pool, single)
+        if type(pool) ~= "table" then return single == nil or single == self.defaultThanksTemplate end
+        for i = 1, 4 do if pool[i] ~= self.defaultThanksTemplates[i] then return false end end
+        return true
+    end
+    if not messages.thanksTemplatesCustomized and stock(messages.thanksTemplates, messages.thanksTemplate) and self.GetDefaultThanksTemplates then
+        messages.thanksTemplates = self:GetDefaultThanksTemplates()
+        messages.thanksTemplate = messages.thanksTemplates[1]
+    end
+    self.buffMessagesCharacterKey = key
+    return setmetatable({}, {
+        __index = function(_, field)
+            if field == "thanksTemplate" or field == "thanksTemplates" or field == "thanksTemplatesCustomized" then return messages[field] end
+            return shared[field]
+        end,
+        __newindex = function(_, field, value)
+            if field == "thanksTemplate" or field == "thanksTemplates" or field == "thanksTemplatesCustomized" then messages[field] = value
+            else shared[field] = value end
+        end,
+    })
 end
 
 function FC:Print(message)
@@ -259,12 +304,20 @@ function FC:Deliver(message, target)
     self:UpdateQueue()
 end
 
+local initialized, addonLoaded = false, false
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("ADDON_LOADED")
+frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:SetScript("OnEvent", function(_, event, name)
-    if name ~= addonName then return end
+    if initialized then return end
+    if event == "ADDON_LOADED" then
+        if name ~= addonName then return end
+        addonLoaded = true
+    elseif event ~= "PLAYER_ENTERING_WORLD" or not addonLoaded then return end
     if type(ClassicCommunicationsDB) ~= "table" then ClassicCommunicationsDB = {} end
-    FC.db = ClassicCommunicationsDB
+    FC.db = FC:SelectThanksCharacter(ClassicCommunicationsDB, ClassicCommunicationsDB, "Classic")
+    if not FC.db then return end
+    initialized = true
     for key, value in pairs(defaults) do
         if type(FC.db[key]) ~= type(value) then FC.db[key] = value end
     end
@@ -273,16 +326,19 @@ frame:SetScript("OnEvent", function(_, event, name)
     if not FC:ValidateThanksTemplate(FC.db.thanksTemplate) then
         FC.db.thanksTemplate = FC.defaultThanksTemplate
     end
+    FC.contextInitializationEvent = event
     FC:InitializeThanksTemplates()
     for _, module in ipairs(FC.modules) do module:Initialize() end
     FC:Print("Version " .. FC.version .. " loaded.")
-    frame:UnregisterEvent(event)
+    frame:UnregisterEvent("ADDON_LOADED")
+    frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
 end)
 
 SLASH_FOREVERCOMMUNICATIONS1 = "/ct"
 SLASH_FOREVERCOMMUNICATIONS2 = "/forevercomms"
 SLASH_FOREVERCOMMUNICATIONS3 = "/fc"
 SlashCmdList.FOREVERCOMMUNICATIONS = function(input)
+    if not FC.db then FC:Print("Waiting for your character identity before loading settings."); return end
     local command, argument = input:match("^%s*(%S*)%s*(.-)%s*$")
     command, argument = command:lower(), argument:lower()
     if command == "" then
@@ -300,6 +356,9 @@ SlashCmdList.FOREVERCOMMUNICATIONS = function(input)
         FC.buffThanksDebug = argument ~= "off"
         FC:Print("Buff Thanks debug " .. (FC.buffThanksDebug and "on" or "off") .. ".")
         return
+    elseif command == "whisperdiagnosis" then
+        if FC.PrintWhisperDiagnosis then FC:PrintWhisperDiagnosis() else FC:Print("Whisper Conversations has not initialized.") end
+        return
     elseif command == "diagnosis" then
         FC:Print("Buff Thanks recent decisions:")
         for _, message in ipairs(FC.buffThanksDiagnostics) do FC:Print(message) end
@@ -309,7 +368,7 @@ SlashCmdList.FOREVERCOMMUNICATIONS = function(input)
         FC:Print(message and (message .. " (preview only)") or reason)
         return
     elseif command ~= "" and command ~= "status" then
-        FC:Print("/ct opens settings; /ct on | off | channel whisper | channel say | cooldown 60 | clear | preview | status | debug on/off | diagnosis")
+        FC:Print("/ct opens settings; /ct on | off | channel whisper | channel say | cooldown 60 | clear | preview | status | debug on/off | diagnosis | whisperdiagnosis")
         return
     end
     FC:Print("Version " .. FC.version .. "; " .. (FC.db.enabled and "Enabled" or "Disabled") .. "; channel " .. FC.db.channel .. "; repeat cooldown " .. FC.db.cooldown .. " seconds.")

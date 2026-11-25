@@ -25,3 +25,5 @@ Designed for **Classic Era 1.15.9**, interface 11509. Addressing uses Name-Realm
 Thanks to **Fenty Od** for testing and ideas, **Proba Croisus** and **Nefas Aeternum** for testing, and **Garok Shrike** for suggestions. Created with OpenAI Codex under the author's direction. Original AI-generated radio-and-microphone artwork; menu organization inspired by HunterTools Forever.
 
 MIT licensed. No Blizzard affiliation or endorsement is implied.
+
+Buff Thanks message templates save separately for each character. New character profiles start with four race-themed messages when the race is recognized. Existing customized messages are kept; Restore defaults loads your current race preset. Generic messages cover unknown races. Subsequent edits affect only that character. Other Buff Thanks preferences remain shared.

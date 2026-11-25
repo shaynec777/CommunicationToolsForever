@@ -38,6 +38,7 @@ UISpecialFrames = {}
 DEFAULT_CHAT_FRAME = { AddMessage = function() end }
 SlashCmdList = {}
 issecretvalue = function(value) return value == secret end
+UnitGUID = function() return "Player-TestOwner" end
 GetNormalizedRealmName = function() return "HomeRealm" end
 GetRealmName = function() return "Home Realm" end
 GetTime = function() return 100 end
@@ -68,7 +69,7 @@ FCF_OpenNewWindow = function() end
 FCF_OpenTemporaryWindow = function() end
 UnitFullName = function() return "Alice", "OtherRealm" end
 local FC = {}
-for _, file in ipairs({"Core.lua", "ClassicCompat.lua", "BuffThanks.lua", "ExtendedIgnore.lua", "DoNotDisturb.lua", "NameAlerts.lua", "WhisperConversations.lua", "FilterChat.lua", "FilterGuild.lua", "FriendsList.lua", "Settings.lua", "ChatAccess.lua"}) do
+for _, file in ipairs({"Core.lua", "RaceThanks.lua", "ClassicCompat.lua", "BuffThanks.lua", "ExtendedIgnore.lua", "DoNotDisturb.lua", "NameAlerts.lua", "WhisperConversations.lua", "FilterChat.lua", "FilterGuild.lua", "FriendsList.lua", "Settings.lua", "ChatAccess.lua"}) do
     assert(loadfile("classic-port/CommunicationToolsClassic/" .. file))("CommunicationToolsClassic", FC)
 end
 for _, f in ipairs(frames) do
@@ -120,3 +121,5 @@ assert(loadfile("tests/test_guild_scan.lua"))("classic-port/CommunicationToolsCl
 assert(loadfile("tests/test_friends_list.lua"))("classic-port/CommunicationToolsClassic")
 
 assert(loadfile("tests/test_combat_thanks.lua"))("classic-port/CommunicationToolsClassic/Core.lua")
+
+assert(loadfile("tests/test_race_thanks.lua"))(FC)

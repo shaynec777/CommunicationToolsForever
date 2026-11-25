@@ -46,6 +46,11 @@ function module:Initialize()
         FC.db.buffExclusions["healing"] = "Healing"
         FC.db.buffHealingExclusionsAdded = true
     end
+    if not FC.db.buffRenewRegrowthExclusionsAdded then
+        FC.db.buffExclusions["renew"] = "Renew"
+        FC.db.buffExclusions["regrowth"] = "Regrowth"
+        FC.db.buffRenewRegrowthExclusionsAdded = true
+    end
     FC:RegisterTool({name = "Buff Thanks", settingsPage = "buffThanks",
         description = "Thank players for new buffs they cast on you.",
         IsEnabled = function() return FC.db.enabled end,
@@ -54,7 +59,7 @@ function module:Initialize()
     frame:RegisterEvent("PLAYER_ENTERING_WORLD")
     frame:RegisterEvent("PLAYER_LEAVING_WORLD")
     frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-    frame:SetScript("OnEvent", function(_, event)
+    local function onEvent(_, event)
         if event == "PLAYER_ENTERING_WORLD" then
             generation = generation + 1; inWorld = true; readyAt = GetTime() + 5
             FC:ClearQueue(); FC:BuffThanksNote("Startup: ignoring buff events for five seconds."); return
@@ -88,5 +93,7 @@ function module:Initialize()
                 FC:BuffThanksNote("Requested thanks for " .. spell .. " to " .. target .. "; delivery not yet confirmed.")
             end
         end)
-    end)
+    end
+    frame:SetScript("OnEvent", onEvent)
+    if FC.contextInitializationEvent == "PLAYER_ENTERING_WORLD" then onEvent(frame, "PLAYER_ENTERING_WORLD") end
 end

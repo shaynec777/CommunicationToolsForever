@@ -764,7 +764,7 @@ function FC:BuildGuildImportSettings(panel, text)
     website:SetScript("OnEditFocusLost", function(self) self:SetText("https://hyjal.cc/armory/guild") end)
     text("2. On the guild roster, copy full names from the Character column, including surnames. The guild roster title and column header are skipped. Table rows separated by tabs or spaces also work; only character names are imported. Copy every roster page you want included, pasting successive pages on new lines before importing. Do not copy the entire webpage.", "GameFontHighlightSmall", 20, -744, 440)
     text("3. Back here, enter the exact guild name in Full guild name. Paste the names into Roster names / table rows, then click Import / replace roster. The guild must match your blacklist (including partial-name rules).", "GameFontHighlightSmall", 20, -844, 440)
-    text("4. Enable Use imported guild rosters. Imports are optional snapshots, saved account-wide. Importing the same guild replaces its previous roster; collect all desired pages before clicking. Learned in-game membership takes priority. Re-import when the roster changes.", "GameFontHighlightSmall", 20, -934, 440)
+    text("4. Enable Use imported guild rosters. Imports are optional snapshots, saved per ruleset and faction. Importing the same guild replaces its previous roster; collect all desired pages before clicking. Learned in-game membership takes priority. Re-import when the roster changes.", "GameFontHighlightSmall", 20, -934, 440)
     return 1030
 end
 
@@ -800,7 +800,13 @@ function module:Initialize()
     settings.learned = learned
     local exceptions = {}
     if type(settings.allowedMembers) == "table" then
-        for key, value in pairs(settings.allowedMembers) do if type(key) == "string" and #key <= 500 and key:find("\n",1,true) and value == true then exceptions[key] = true end end
+        for key, value in pairs(settings.allowedMembers) do
+            if type(key) == "string" and #key <= 500 and value == true then
+                local guild, member = key:match("^(.-)\n(.+)$")
+                local normalized = member and (member:match("^guid:Player%-") and member or FC:NormalizeBlacklistName(member))
+                if guild and normalized then exceptions[guild .. "\n" .. normalized] = true end
+            end
+        end
     end
     settings.allowedMembers = exceptions
     local names = {}

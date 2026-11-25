@@ -34,13 +34,13 @@ Use `/ct` to open the settings panel. `/fc` and `/forevercomms` remain aliases. 
 
 Buff Thanks now provides a pool of **four configurable messages**, selected randomly for each thank-you. Your existing message becomes entry 1 on upgrade, with three default alternatives added. Edit the entries under **Buff Thanks > Configure** and click **Save messages**. Each nonblank entry must include `<buffname>` and `<buffername>`; blank entries are unused, and at least one must remain. Each entry has its own local preview. **Restore defaults** restores all four defaults.
 
-Each used entry has an equal chance of selection; repeats are possible. Entries exceeding 255 bytes after real buff/player-name substitution are excluded from that selection. The pool works for whispers and /say and persists account-wide. `/ct preview` previews a random saved entry. Saving clears queued thanks so queued messages don't use obsolete wording.
+Each used entry has an equal chance of selection; repeats are possible. Entries exceeding 255 bytes after real buff/player-name substitution are excluded from that selection. The pool works for whispers and /say and saves per character. `/ct preview` previews a random saved entry. Saving clears queued thanks so queued messages don't use obsolete wording.
 
 Put `<buffname>` and `<buffername>` anywhere in each message, including in either order. Click **Save messages** (or press Enter in an entry). The live previews send nothing. For example:
 
 > Much appreciated for <buffname>, my friend <buffername>!
 
-Both labels are optional; use either, both, or plain text such as “Thanks!”. Labels are case-sensitive. Templates are limited to 200 bytes; completed messages over WoW's 255-byte chat limit are skipped without truncating names. Plain text only; line breaks and chat formatting codes are rejected. **Restore defaults** immediately saves the four default messages. Saving or resetting clears queued thanks; preferences persist account-wide. `/ct preview` uses your saved wording.
+Both labels are optional; use either, both, or plain text such as “Thanks!”. Labels are case-sensitive. Templates are limited to 200 bytes; completed messages over WoW's 255-byte chat limit are skipped without truncating names. Plain text only; line breaks and chat formatting codes are rejected. **Restore defaults** immediately saves the four default messages. Saving or resetting clears queued thanks; message templates save per character. `/ct preview` uses your saved wording.
 
 Settings persist account-wide. Queued messages expire after two minutes and are capped at ten. Existing login/zone buffs, self buffs, NPC/pet buffs, stack changes, and refreshes of existing auras do not trigger thanks. Reapplied buffs can trigger after the cooldown. All new player-cast helpful auras qualify, including short combat buffs; there is no spell allowlist yet.
 
@@ -54,7 +54,7 @@ Alternatively, choose **Extended Ignore > Configure** from the main menu, enter 
 
 Forever multi-part character names are supported, for example `Voljen Mindshaper` or `Voljen Mindshaper-RealmName`. Spaces between character-name parts are preserved, so a first name alone does not match a character with a surname.
 
-The blacklist persists account-wide and is kept when the tool is disabled. It hides new incoming character messages from chat frames using Blizzard's message filters: say, yell, character whispers, emotes, guild/officer, party, raid, instance, public channels, and accessible character community messages. It also filters character AFK/DND replies and voice transcription where a matching character sender is supplied. Other realms' characters with the same name are unaffected.
+The blacklist persists within this Forever ruleset and faction and is kept when the tool is disabled. It hides new incoming character messages from chat frames using Blizzard's message filters: say, yell, character whispers, emotes, guild/officer, party, raid, instance, public channels, and accessible character community messages. It also filters character AFK/DND replies and voice transcription where a matching character sender is supplied. Full character names are matched within this verified ruleset and faction; display-realm labels are not required.
 
 This is a local display filter. It doesn't change Blizzard's ignore list, erase old messages, suppress chat bubbles or messages displayed directly by other addons, or match Battle.net account identities to character names. Client-restricted messages whose sender data cannot be read may bypass addon filters.
 
@@ -62,7 +62,7 @@ This is a local display filter. It doesn't change Blizzard's ignore list, erase 
 
 ### Do Not Disturb
 
-Open `/ct`, then **Do Not Disturb > Configure**. Enter your auto-response, optionally enable forwarding/referral and enter the other player's full name including their surname, then click **Save DND settings**. Enable the tool using its main-menu checkbox. DND and forwarding default to disabled; all settings persist account-wide.
+Open `/ct`, then **Do Not Disturb > Configure**. Enter your auto-response, optionally enable forwarding/referral and enter the other player's full name including their surname, then click **Save DND settings**. Enable the tool using its main-menu checkbox. DND and forwarding default to disabled; general preferences persist account-wide; the forwarding recipient stays within the current ruleset and faction.
 
 - **Relay incoming whispers** sends the other player a copy marked `[CT Forward] From Sender Name: ...`. Long messages split into chat-sized chunks without splitting UTF-8 characters. Chat links and texture markup are converted to plain text.
 - **Tell the sender to contact this player instead** appends `Please whisper Player Name.` to your auto-response without relaying the original message.
@@ -128,7 +128,7 @@ Thanks to **Fenty Od** for help with testing and ideas, **Proba Croisus** and **
 
 Open `/ct`, enable **Whisper Conversations**, and choose **Configure**. Choose a tabbed window or a separate window per person. In tabbed mode, **Detach** moves a chat into its own window; **Attach to tabs** returns it. Drag windows to move them and use the bottom-right grip to resize. Enter or **Send** submits a reply. Closing a window keeps its history; **Open conversations** in settings restores access. Incoming messages do not switch tabs while you are typing a reply.
 
-History persists in the existing account-wide saved variables across reloads/logouts, with 50, 100 (default), 250, or 500 messages per person and up to 40 recent people. The settings page includes a two-click **Clear all saved history** control. Normal chat whispers remain visible. Extended Ignore excludes blocked senders; DND hide suppresses automatic display. Combat suppression (enabled by default) records messages without opening windows. Disabling the tool hides its windows and pauses recording. Character whispers only; Battle.net conversations are not supported.
+History persists within the current ruleset and faction across reloads/logouts, with 50, 100 (default), 250, or 500 messages per person and up to 40 recent people. The settings page includes a two-click **Clear all saved history** control. Normal chat whispers remain visible. Extended Ignore excludes blocked senders; DND hide suppresses automatic display. Combat suppression (enabled by default) records messages without opening windows. Disabling the tool hides its windows and pauses recording. Character whispers only; Battle.net conversations are not supported.
 
 Buff Thanks settings include **Buffs excluded from thanks**. Enter one exact localized buff name and click **Add buff** or press Enter. Browse with the scrollbar or mouse wheel and use **×** to remove entries. Changes save immediately. Cantation of Manifestation is excluded by default; delete it from the list to allow it again. Whisper windows default to compact sizes with 80% background opacity and remain resizable.
 
@@ -142,13 +142,13 @@ Matches ignore capitalization and include parts of longer words: `boost` also ma
 
 Open `/ct` and choose **Filter Guild > Configure**. Enter a guild name and click **Add guild** or press Enter. Choose **Exact / Partial** beside it, then click **Scan beside that guild entry** to find its online members. The top Scan button advances the full-list queue. Wait for results and at least five seconds between Scan clicks; continue until the scan reports complete. Browse the scrollable list and use **×** to delete entries; changes save immediately. Messages from identified members of those guilds are hidden across incoming player chat, including new Whisper Conversations messages and Name Alerts. DND replies and forwarding also skip them. Names match exactly by default, ignoring capitalization. Click **Exact / Partial** beside an individual guild entry to choose its matching mode. **Partial** matches literal parts: `Olympus` matches `OLYMPUS IX`, `Olympus II`, and `New Olympus`. This also applies to imported guild rosters. Delete an entry to allow its members again, or pause the tool using its Enabled checkbox.
 
-Membership is learned from players the client exposes, including targets, mouseovers, nameplates and group members, and saved account-wide between sessions without a five-minute expiry. Later observations update the saved guild, including when a character leaves a guild. Until then, the last observed membership is used. **Forget learned guilds** clears this learned data without removing your blacklist or imports. Unknown senders remain visible. WoW does not provide a complete membership roster for arbitrary guilds through this feature.
+Membership is learned from players the client exposes, including targets, mouseovers, nameplates and group members, and saved within the current ruleset and faction between sessions without a five-minute expiry. Later observations update the saved guild, including when a character leaves a guild. Until then, the last observed membership is used. **Forget learned guilds** clears this learned data without removing your blacklist or imports. Unknown senders remain visible. WoW does not provide a complete membership roster for arbitrary guilds through this feature.
 
 ### Optional Guild Import
 
 Automatic guild detection works without imports. To supplement it, open **Filter Guild > Import guild roster**, enter the full guild name, and paste one full character name per line, including surnames. Copy names from a guild roster website or an external roster tool if you choose; copy character names or supported roster table rows, and use your own region's roster. Click **Import / replace roster** to enable imported rosters and activate filtering for this guild. Open **View guild blacklists** to see its members.
 
-Imported rosters persist account-wide and identify listed senders even when they are not nearby. They are snapshots, not automatic web downloads. Re-import the same guild to replace its old roster as membership changes, or enter its name and click **Remove this guild's import**. Recent in-game guild information overrides imported membership. Up to 1,000 unique character names are accepted per guild. Turning off imported rosters keeps the saved imports and leaves automatic detection active.
+Imported rosters persist within the current ruleset and faction and identify listed senders even when they are not nearby. They are snapshots, not automatic web downloads. Re-import the same guild to replace its old roster as membership changes, or enter its name and click **Remove this guild's import**. Recent in-game guild information overrides imported membership. Up to 1,000 unique character names are accepted per guild. Turning off imported rosters keeps the saved imports and leaves automatic detection active.
 
 ## Friends List
 
@@ -193,3 +193,5 @@ Buff Thanks holds up to ten distinct thank-you messages during combat, keeping t
 
 
 **Thank players in instances** on the Buff Thanks page starts off. Enable it to allow thanks in instanced areas, including dungeons and raids. Outside instances, thanks continue normally. Changing this option clears pending thanks; queued delivery also checks the current instance setting before sending.
+
+Buff Thanks message templates save separately for each character. New character profiles start with four race-themed messages when the race is recognized. Existing customized messages are kept; Restore defaults loads your current race preset. Generic messages cover unknown races. Subsequent edits affect only that character. Other Buff Thanks preferences remain shared.
