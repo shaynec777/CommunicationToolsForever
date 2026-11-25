@@ -26,3 +26,10 @@ Both builds installed locally on E: with backups; all 33 packaged files verified
 # Stable release channel - November 20, 2026
 
 At user request, existing 0.10.9 Classic and Forever GitHub releases were promoted to stable and their titles/current notes no longer say beta. Existing tags and ZIP assets were preserved. CurseForge files 9682712 and 9682717 were changed to Release, with titles/current changelogs updated; both show Approved. Both project descriptions updated. Future publication defaults are stable. Historical records remain unchanged. This was a release metadata update; no new gameplay build or installation was needed.
+
+
+# 0.10.18 publication - November 25, 2026
+
+Both stable GitHub releases are live at source commit 2d2acc513e9251c1985a9872ba8288f12bafcc0a, tags v0.10.18 and classic-v0.10.18. GitHub asset digests and both CurseForge CDN ZIP digests match the verified local packages. Both Lua 5.1 suites and archive checks passed. User confirmed live race defaults, per-toon saving and available healing-exclusion cases.
+
+CurseForge Forever file 9807935: Release, Under Review. Classic file 9807940: Release, Approved. Automatic publication after approval selected for both; no Forever approval claimed. Both project descriptions updated to 0.10.18 and retain the requested opening line. Verification used the built-in browser; local JSON receipts are under releases/. Installed runtime code remains the tested 0.10.18; release archive updates were documentation only.
